@@ -12,33 +12,27 @@
 	V1.0.1     18.06.2020      Vitaly Ruhl   bereinigen 
     
     Funktionsbeschreibung:
-    Windows-Cron (Aufgabenplaner) für BackupII registrieren
+    Windows-Cron (Aufgabenplaner) registrieren
     **********************************************************************************************************************
 #>
 
 #**********************************************************************************************************************
-#Einstellungen
+#Settings
 	$ErrorActionPreference = "Continue" #Fehlerbehandlung im Skript - Bei Fehler einfach mal weitergehen, aber Fehler ausgeben....(Möglich:Ignore,SilentlyContinue,Continue,Stop,Inquire) 
 	$debug = $false # $true $false
 
-	$NewTaskName = 'HerBackupII-Datei-Sicherungen V1.0.1'
-	$CronTriggerScript = '"F:\Programmierung\__Auto-Backups__\FileSicherung.ps1"'
+	$NewTaskName = 'FileBackup V1.0.1'
+	$CronTriggerScript = '"F:\Programmierung\__Auto-Backups__\FileBackup.ps1"'
 	
-	# Trigger einstellen (Grund)
-	#$dtv =  get-date ((Get-Date).tostring('dd.MM.yyyy') + ' 03:00:00') # in die Vergangenheit damit zum Test sofortausführung und natürlich nachts wegen Datenmänge... --> geht leider nicht???
-	$trig    = New-ScheduledTaskTrigger -Weekly -WeeksInterval 1 -DaysOfWeek Sunday -At 3am
-
-	# trigger verkleinern
-	#$trig2   = New-ScheduledTaskTrigger -Once -At (Get-date) -RepetitionDuration  (New-TimeSpan -Days 1)  -RepetitionInterval  (New-TimeSpan -Minutes 1)
-	#$trig.Repetition = $trig2.Repetition
+	# Set the Trigger
+	$trig    = New-ScheduledTaskTrigger -Weekly -WeeksInterval 1 -DaysOfWeek Saturday -At 3am
 
 #**********************************************************************************************************************
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                                    # Div Funktionen
-#region begin Diverse
-	#nicht benötigte wegen Performance entfernen....
+#region begin some Functions
+
 	function whr ()	{Write-Host "`r`n`r`n"}
 	
 	function trenn ($text)
@@ -48,15 +42,7 @@
 		Write-Host "      $text" #-ForegroundColor Yellow
 		whr #-ForegroundColor Yellow
 	}
-	
-	function trennY ($text)
-	{
-		whr -ForegroundColor Yellow
-		Write-Host '-----------------------------------------------------------------------------------------------' -ForegroundColor Yellow
-		Write-Host "      $text" -ForegroundColor Yellow
-		whr -ForegroundColor Yellow
-	}
-	
+		
 	function Get-ScriptDirectory #Rückgabe vollstondiger Pfad zum Skript
 	{
 		<#
@@ -64,7 +50,7 @@
 			$InstallPath = Get-ScriptDirectory #Pfad wo der Skript ist
 		#>
 		$Invocation = (Get-Variable MyInvocation -Scope 1).Value
-		Split-Path $Invocation.MyCommand.Path
+		return Split-Path $Invocation.MyCommand.Path
 	}
 
 #endregion
@@ -72,7 +58,7 @@
 
 #**********************************************************************************************************************
 #**********************************************************************************************************************
-# 									Hauptprogramm
+# MAIN Functions
 
 #$PC  = $env:computername #Aktuellen PC-Namen ermitteln
 
@@ -91,20 +77,21 @@ if ($debug)
 }
 
 
-#Erstaufruf feststellen...
+#Check for Cron exists
 $EF = Get-ScheduledTask | Where-Object TaskName -eq $NewTaskName -ErrorAction SilentlyContinue
 
 if ($EF)
 {
-    trenn "die Windows-Aufgabe [$NewTaskName] existiert bereits...  --> Skript überspringen..."
+	trenn "The Windows-Task [$NewTaskName] exists...  --> Plese delete them manually and run again..."
+	Pause
+	return
 }
 
 else
 {
-#<#
-    #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    #auskommentieren, wenn Skript mit Admin-Rechten laufen soll!!!
-    #region begin AdminRechteAnfordern
+#<#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	#region begin Force Admin-Rights
+		#https://www.heise.de/ct/hotline/PowerShell-Skript-mit-Admin-Rechten-1045393.html
         $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
         $princ = New-Object System.Security.Principal.WindowsPrincipal($identity)
         if(!$princ.IsInRole( `
@@ -123,46 +110,45 @@ else
           return;
         }
     #endregion
-    #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# #>  
-	set-executionpolicy remotesigned -force -ErrorAction SilentlyContinue
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#> 
+  
+	#set-executionpolicy remotesigned -force -ErrorAction SilentlyContinue
     
-	#Eventlog-Bereich "Hermes" anlegen - hier werden die Events (Fehler und Hinweise) bei der Erstellung des Crons abgespeichert
-	if ($s=Get-WinEvent -ListLog HERMES -ErrorAction SilentlyContinue) 
+	# create Eventlog-Group "MyBackups" if Exists
+	if ($s=Get-WinEvent -ListLog MyBackups -ErrorAction SilentlyContinue) 
 	{ 
-		if ($debug) {Write-Host "eventlog existiert bereits [$s]"}
+		if ($debug) {Write-Host "eventlog really exists [$s]"}
 	} 
 	else 
 	{
-		New-EventLog -Source "HERMES" -LogName "HERMES"
+		New-EventLog -Source "MyBackups" -LogName "MyBackups"
 	} 
 	
-	#Das eigentliche Anlen einer Aufgabe...	
 	try 
 	{
-		#cronjob anlegen...
+		#Create CronJob ...
 		$username = "$env:USERDOMAIN\$env:USERNAME" #current user
-		$cred = Get-Credential $username #Passwort abfragen (wichtig später für Ausführung des Cron mit Adminrechten)
-		$Password = $cred.GetNetworkCredential().Password #Passwort in Klartext Zwischenspeichern, leider kann Aufgabenplaner nicht den Secure-PW benutzen
+		$cred = Get-Credential $username #get Password -> be sure the User has Admin Rights!
+		$Password = $cred.GetNetworkCredential().Password #store temporaly Password in clear text -> Windows Task-Manager dont accept crypted keys
 
 		$action  = New-ScheduledTaskAction -WorkingDirectory $env:TEMP -Execute $env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe -Argument "-command & $CronTriggerScript"
 		$conf    = New-ScheduledTaskSettingsSet -WakeToRun #-RunOnlyIfIdle
 		$STPrincipal = New-ScheduledTaskPrincipal -RunLevel Highest -User $username #-Password $Password 
 		$MyTask =  New-ScheduledTask -Action $action -Settings $conf -Trigger $trig -Principal $STPrincipal 
-		Register-ScheduledTask $NewTaskName -TaskPath "\HERMES" -InputObject $MyTask -User $username -Password $Password -Force 
-		Write-EventLog -LogName 'HERMES' -Source 'HERMES' -EventID 1111 -EntryType Information -Message "Windowsaufgabe '$NewTaskName' angelegt von '$CronTriggerScript'"
+		Register-ScheduledTask $NewTaskName -TaskPath "\MyBackups" -InputObject $MyTask -User $username -Password $Password -Force 
+		Write-EventLog -LogName 'MyBackups' -Source 'MyBackups' -EventID 1111 -EntryType Information -Message "Windows-Cron '$NewTaskName' crated from '$CronTriggerScript'"
 	}
 
 	catch
 	{
-		$errText = "Windowsaufgabe '$NewTaskName' --> Anlegen der Aufgabe Fehlgeschlagen `r`n Fehler: $Error `r`n"
+		$errText = "Windows-Cron '$NewTaskName' --> creation failed `r`n Error: $Error `r`n"
 		if ($debug) {Write-Host $errText}
-		Write-EventLog -LogName 'HERMES' -Source 'HERMES' -EventID 1111 -EntryType Error -Message $errText
+		Write-EventLog -LogName 'MyBackups' -Source 'MyBackups' -EventID 1111 -EntryType Error -Message $errText
 	}
 
 	finally
 	{
-		if ($debug) {Get-ScheduledTask | Where-Object TaskName -eq $NewTaskName }#nochmal anzeigen
+		if ($debug) {Get-ScheduledTask | Where-Object TaskName -eq $NewTaskName } #Schow the creeated Task - when nothing to see --> get wrong!
 	}
 
 
@@ -172,8 +158,8 @@ else
 #Set-ExecutionPolicy -Scope Process Unrestricted
 
 if ($debug) {
-	trenn 'Skript ausgefuehrt!'
-	Write-Host 'Wenn nichts rot, dann alles ok ;-)'
+	trenn 'Ready!'
+	pause
 }
 
 #pause

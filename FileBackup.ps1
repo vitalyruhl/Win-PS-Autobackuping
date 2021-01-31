@@ -3,7 +3,7 @@
 		C:\Windows\System32\WindowsPowerShell\v1.0
     # **********************************************************************************************************************
     #
-    #Funktion: FileSicherung.ps1
+    #Funktion: FileBackup.ps1
     #______________________________________________________________________________________________________________________
     #
     #Version  Datum           Author        Beschreibung
@@ -12,62 +12,52 @@
 	#V1.1     12.03.2020      Vitaly Ruhl   Erweitert, aufgeräumt
     #
     #Funktionsbeschreibung:
-    #HerBackupII FileSicherung über Cron -> hier die Filesicherung
+    # make File-Backup over robocopy from below selected Folder(s)
     # **********************************************************************************************************************
     #>
 
 #**********************************************************************************************************************
-#Einstellungen
+#Settings
 $ErrorActionPreference = "Continue" #Fehlerbehandlung im Skript - Bei Fehler einfach mal weitergehen, aber Fehler ausgeben....(Möglich:Ignore,SilentlyContinue,Continue,Stop,Inquire) 
-$debug = $true # $true $false
+$debug = $false # $true $false
 
 #**********************************************************************************************************************
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Div Funktionen
-#region begin Diverse
-#nicht benötigte wegen Performance entfernen....
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#region begin some Functions
+
 function whr ()	{ Write-Host "`r`n`r`n" }
 	
 function trenn ($text) {
 	whr #-ForegroundColor Yellow
 	Write-Host '-----------------------------------------------------------------------------------------------'# -ForegroundColor Yellow
 	Write-Host "      $text" #-ForegroundColor Yellow
-	whr #-ForegroundColor Yellow
+	Write-Host " "
 }
 
-function log ($text)
-	{
-		if ($debug) {
-			Write-Host "(debug) - $text" -ForegroundColor Gray
-		}
-		
-	}
+function log ($text){
+	if ($debug) {
+		Write-Host "(debug) - $text" -ForegroundColor Gray
+	}	
+}
 
-function Add-Path($MyPath) { #Prüft, ob der Pfad vorhanden ist, sonnst erstellt einen neuen.....
-	<#
+function Add-Path($MyPath) { #get true if the Path exists, if not -> create it!!!
+		<#
 			Beispiel: 
 			$Pfad="$env:TEMP\PS_Skript"
 			Add-Path($Pfad)
 		#>
 	log("Add-Path - Path:" + $MyPath )
 	if (!(Test-Path -path $MyPath -ErrorAction SilentlyContinue )) {
-		# Pfad anlegen wenn nicht vorhanden
-		if (!(Test-Path -Path $MyPath)) {
+		
+		if (!(Test-Path -Path $MyPath)) {# if not -> create it!!!
 			#New-Item -Path $MyPath -ItemType Directory -ErrorAction SilentlyContinue # | Out-Null
 			New-Item -Path $MyPath -ItemType Directory # | Out-Null
 		}      
 	}
 	return (Test-Path -path $MyPath -ErrorAction SilentlyContinue )
 }
-
-#endregion
-
-#**********************************************************************************************************************
-#**********************************************************************************************************************
-# 									Hauptprogramm
-Clear-Host
-trenn " "
 	
 function Copy-mPath($Source, $Destination){
 
@@ -83,16 +73,24 @@ function Copy-mPath($Source, $Destination){
 		}
 		else{
 			trenn " "
-			Write-Host "Fehler beim Kopieren -> Source:" + $Source + " --> Destination:" + $Destination -ForegroundColor red
+			Write-Host "Error biing copy from Source:" + $Source + " --> Destination:" + $Destination -ForegroundColor red
 		}
 	}
 	else{
 		trenn " "
-		Write-Host "Fehler beim Kopieren -> Source:" + $Source + " --> Destination:" + $Destination -ForegroundColor red
-		Write-Host "Source-Pfad existiert nicht" -ForegroundColor red
+		Write-Host "Error biing copy from Source:" + $Source + " --> Destination:" + $Destination -ForegroundColor red
+		Write-Host "Source-Path does not exist" -ForegroundColor red
 	}
 
 }
+
+#endregion
+
+#**********************************************************************************************************************
+#**********************************************************************************************************************
+# MAIN
+Clear-Host
+trenn " "
 
 #! ATENTION! do not use the same Destination-Path twice! Robocopy delete all data that the Sourcepath not contained!!!
 
@@ -102,14 +100,11 @@ Copy-mPath "F:\Programmierung" ("\\192.168.2.205\Programmierung") # Ordner Progr
 Copy-mPath "D:\Eigene Dateien\Eigene Dateien Sweta\Buchhaltung" ("\\192.168.2.205\Buchhaltung\Buchhaltung") # Ordner Buchhaltung auf der NAS sichern
 Copy-mPath "D:\Eigene Dateien\Eigene Dateien Sweta" ("\\192.168.2.205\Unsere_Dokummente\PC-Sicherung") # Ordner Buchhaltung auf der NAS sichern
 
-trenn 'Skript ausgefuehrt!'
-Write-Host 'Wenn nichts rot, dann alles ok ;-)'
 
-pause
-<##**********************************************************************************************************************
-	#Div. Infos
-	C:\Windows\System32\WindowsPowerShell\v1.0
-#>
+if ($debug) {
+	trenn 'Ready!'
+	pause
+}
 
 
 
