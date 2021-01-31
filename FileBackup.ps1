@@ -20,7 +20,7 @@
 #Settings
 $ErrorActionPreference = "Continue" #Fehlerbehandlung im Skript - Bei Fehler einfach mal weitergehen, aber Fehler ausgeben....(Möglich:Ignore,SilentlyContinue,Continue,Stop,Inquire) 
 $debug = $false # $true $false
-
+$TransScriptPrefix = "Log_FileBackup-ps1__"
 #**********************************************************************************************************************
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -40,6 +40,15 @@ function log ($text){
 	if ($debug) {
 		Write-Host "(debug) - $text" -ForegroundColor Gray
 	}	
+}
+	
+function Get-ScriptDirectory { #Return complete Path from this script
+	<#
+		#Beispiel...
+		$InstallPath = Get-ScriptDirectory #Pfad wo der Skript ist
+	#>
+	$Invocation = (Get-Variable MyInvocation -Scope 1).Value
+	return Split-Path $Invocation.MyCommand.Path
 }
 
 function Add-Path($MyPath) { #get true if the Path exists, if not -> create it!!!
@@ -92,13 +101,23 @@ function Copy-mPath($Source, $Destination){
 Clear-Host
 trenn " "
 
+#$PC  = $env:computername
+$datum = Get-Date -Format yyyy.MM.dd_HHmm
+$Source = Get-ScriptDirectory
+
+if ($debug -or $true) 
+{
+	start-transcript "$Source\log\$TransScriptPrefix$(get-date -format yyyy-MM).txt"
+	Write-Host "$datum [$connectionstring]"
+}
+
 #! ATENTION! do not use the same Destination-Path twice! Robocopy delete all data that the Sourcepath not contained!!!
 
-Copy-mPath "D:\Eigene Dateien\Fotos Bilder\Eigene Fotos" ("\\192.168.2.205\Unsere_Bilder\Unsere Bilder") #Bilder in die NAS schieben
 Copy-mPath "\\192.168.2.205\_Scans_" ("E:\_Scans_") # Ordner Scans von der Nas auf PC sichern
 Copy-mPath "F:\Programmierung" ("\\192.168.2.205\Programmierung") # Ordner Programmierung auf der NAS sichern
 Copy-mPath "D:\Eigene Dateien\Eigene Dateien Sweta\Buchhaltung" ("\\192.168.2.205\Buchhaltung\Buchhaltung") # Ordner Buchhaltung auf der NAS sichern
 Copy-mPath "D:\Eigene Dateien\Eigene Dateien Sweta" ("\\192.168.2.205\Unsere_Dokummente\PC-Sicherung") # Ordner Buchhaltung auf der NAS sichern
+Copy-mPath "D:\Eigene Dateien\Fotos Bilder\Eigene Fotos" ("\\192.168.2.205\Unsere_Bilder\Unsere Bilder") #Bilder in die NAS schieben
 
 
 if ($debug) {
@@ -106,6 +125,10 @@ if ($debug) {
 	pause
 }
 
+
+if ($debug -or $true) {Stop-Transcript}
+ 
+exit 
 
 
 

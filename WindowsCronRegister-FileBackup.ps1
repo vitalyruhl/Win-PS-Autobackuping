@@ -43,8 +43,7 @@
 		whr #-ForegroundColor Yellow
 	}
 		
-	function Get-ScriptDirectory #Rückgabe vollstondiger Pfad zum Skript
-	{
+	function Get-ScriptDirectory { #Return complete Path from this script
 		<#
 			#Beispiel...
 			$InstallPath = Get-ScriptDirectory #Pfad wo der Skript ist
