@@ -19,7 +19,7 @@
 #**********************************************************************************************************************
 #Settings
 $ErrorActionPreference = "Continue" #Fehlerbehandlung im Skript - Bei Fehler einfach mal weitergehen, aber Fehler ausgeben....(Möglich:Ignore,SilentlyContinue,Continue,Stop,Inquire) 
-$debug = $false # $true $false
+$debug = $true # $true $false
 $TransScriptPrefix = "Log_FileBackup-ps1__"
 #**********************************************************************************************************************
 
@@ -114,10 +114,10 @@ if ($debug -or $true)
 #! ATENTION! do not use the same Destination-Path twice! Robocopy delete all data that the Sourcepath not contained!!!
 
 Copy-mPath "\\192.168.2.205\_Scans_" ("E:\_Scans_") # Ordner Scans von der Nas auf PC sichern
-Copy-mPath "F:\Programmierung" ("\\192.168.2.205\Programmierung") # Ordner Programmierung auf der NAS sichern
 Copy-mPath "D:\Eigene Dateien\Eigene Dateien Sweta\Buchhaltung" ("\\192.168.2.205\Buchhaltung\Buchhaltung") # Ordner Buchhaltung auf der NAS sichern
 Copy-mPath "D:\Eigene Dateien\Eigene Dateien Sweta" ("\\192.168.2.205\Unsere_Dokummente\PC-Sicherung") # Ordner Buchhaltung auf der NAS sichern
 Copy-mPath "D:\Eigene Dateien\Fotos Bilder\Eigene Fotos" ("\\192.168.2.205\Unsere_Bilder\Unsere Bilder") #Bilder in die NAS schieben
+Copy-mPath "F:\Programmierung" ("\\192.168.2.205\Programmierung") # Ordner Programmierung auf der NAS sichern
 
 
 if ($debug) {
