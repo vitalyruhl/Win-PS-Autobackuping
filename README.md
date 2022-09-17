@@ -13,6 +13,7 @@ It uses Robocopy, or Powershell copy and can compress the Files with 7zip. Tere 
 ## Function:
 
 - Make backup of all Files in contained folder, except exclusions...
+- WindowsCronRegister-backup.ps1 can register the Script as a Windows Task, so it will run every day at the time you set in the Script. 
 
 ---
 
@@ -38,7 +39,7 @@ It uses Robocopy, or Powershell copy and can compress the Files with 7zip. Tere 
 4. scroll down and choose `More apps` ![Screenshot2](assets/Screenshot_2.jpg)
 5. scroll down and choose `Look for another app on this PC` ![Screenshot3](assets/Screenshot_3.jpg)
 6. paste `C:\Windows\System32\WindowsPowerShell\v1.0` in adressfield and press enter ![Screenshot4](assets/Screenshot_4.jpg)
-7. select `Windows PowerShell` and choose open
+7. select `PowerShell.exe` and choose open
 
 ---
 
@@ -72,11 +73,21 @@ It uses Robocopy, or Powershell copy and can compress the Files with 7zip. Tere 
 }
 ```
 
+you can use some local path to update your script:
+
+
+```json
+"UpdateFromPath":""\\\\myserver\\ps-scripts\\Powerschell\\Backup"",
+
+```
+
+all variables, not included in the BackupSettings.json will be set to the default values.
+
 ---
 
 ## To-Do / Errors: 
 
- - 03.08.2021 Exclusion don't work with kompressing -> its copy all file (not implemented yet)
+ - 03.08.2021 Exclusion don't work with kompressing -> its copy all files (not implemented yet)
 
 <br>
 
