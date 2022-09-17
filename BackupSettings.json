@@ -1,16 +1,16 @@
 {
     "global:debugTransScript":  false,
-    "global:debug":  0,
+    "global:debug":  false,
     "UpdateVersion":  130,
-    "AdminRightsRequired":  0,
+    "AdminRightsRequired":  false,
     "AllowUpdate":  1,
     "UpdateFromPath":  "https://raw.githubusercontent.com/vitalyruhl/Win-PS-Autobackuping/master",
     "UpdateFile":  "backup.ps1",
     "UpdateVersionFile":  "VersionSettings.json",
     "Prefix":  "",
     "Sufix":  "",
-    "CompressIntoTargetPaths":  0,
-    "UseRobocopy":  1,
+    "CompressIntoTargetPaths":  false,
+    "UseRobocopy":  true,
     "Parameter":  "/J /MIR /R:2 /W:1 /NP /COMPRESS",
     "TargetPaths":  [
                         "T:\\zz_bkp_Test1\\"
