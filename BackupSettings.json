@@ -1,0 +1,25 @@
+{
+    "UpdateVersion":  120,
+    "AllowUpdate":  true,
+    "UpdateFromPath":  "https://raw.githubusercontent.com/vitalyruhl/Win-PS-Autobackuping/master",
+    "UpdateFromPath-actual":  "\\\\tower\\programmierung\\Powerschell\\Backup-V1",
+    "UpdateFromPath-temp":  "C:\\Daten\\Programmierung\\Powerschell\\Backup-V1",
+    "UpdateFile":  "backup.ps1",
+    "UpdateVersionFile":  "VersionSettings.json",
+    "Prefix":  "",
+    "Sufix":  "",
+    "CompressIntoTargetPaths":  false,
+    "UseRobocopy":  true,
+    "Parameter":  "/J /MIR /R:2 /W:1 /NP /COMPRESS",
+    "TargetPaths":  [
+                        "T:\\zz_bkp_Test1\\"
+                    ],
+    "Excludes":  [
+                     "*xvba_debug.log",
+                     "*RECYCLE.BIN",
+                     "SystemVolumeInformation",
+                     "RECYCLER",
+                     "Thumbs.db"
+                 ],
+    "AdminRightsRequired":  false
+}

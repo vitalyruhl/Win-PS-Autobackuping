@@ -22,7 +22,7 @@
 	$debug = $false # $true $false
 
 	$NewTaskName = 'FileBackup V1.0.1'
-	$CronTriggerScript = '"F:\Programmierung\__Auto-Backups__\FileBackup.ps1"'
+	$CronTriggerScript = '"C:\Daten\Programmierung\Powerschell\Backup.ps1"'
 	
 	# Set the Trigger
 	$trig    = New-ScheduledTaskTrigger -Weekly -WeeksInterval 1 -DaysOfWeek Saturday -At 3am
@@ -61,7 +61,7 @@
 
 #$PC  = $env:computername #Aktuellen PC-Namen ermitteln
 
-$datum = Get-Date -Format yyyy_MM_dd_HHmm
+$currentDateTime = Get-Date -Format yyyy_MM_dd_HHmm
 #$dt = Get-Date -Format yyyy_MM #_HHmm
 $InstallPath = Get-ScriptDirectory #Pfad wo der Skript ist
 
@@ -70,7 +70,7 @@ if ($debug)
     Clear-Host
     trenn " Debug aktiv "
     Write-Host ""
-    Write-Host "Datum/Zeit        : [$datum]"
+    Write-Host "Datum/Zeit        : [$currentDateTime]"
     Write-Host "Verzeichnis       : [$InstallPath]"
     Write-Host ""
 }
