@@ -15,7 +15,7 @@ $Version = 100 #	03.08.2021		Vitaly Ruhl		init
 $Version = 110 #	13.09.2022		Vitaly Ruhl		Add Robocopy Option
 $Version = 111 #	13.09.2022		Vitaly Ruhl		Bugfix on source as drive like s:\
 $Version = 120 #	13.09.2022		Vitaly Ruhl		Add aditional BackupSettings.json 
-$Version = 130 #	17.09.2022		Vitaly Ruhl		Add aditional Transscript to Logfile and download actual Version from Github 
+$Version = 230 #	17.09.2022		Vitaly Ruhl		Add aditional Transscript to Logfile and download actual Version from Github 
 
 
 <#______________________________________________________________________________________________________________________
@@ -49,31 +49,6 @@ $Parameter = "/J /MIR /R:2 /W:1 /NP"
 $ExcludePath = '' # '/XD D:\`$RECYCLE.BIN "System Volume Information" "RECYCLER"' #/XD exclude-fold* | /XF "C:\source\folder\path\to\folder\filename.extension"
 # end Robocopy Region
 
-
-
-#--------------------------------------------------------------------------------
-# predefined Variable --> comes from BackupSettings.json, if included in the same folder
-
-$TargetPaths = @(# An Array of Targets - Save all in more then 1 Backup
-    'Y:\zz_bkp_Test\'
-)
-    
-$Excludes = @(# Working with LIKE operator -> can contains *,% etc...
-    "*xvba_debug.log", # !!!!!#xvba_debug.log must be exclude from Backup. Otherwise crashes on own debug-files
-    '*`$RECYCLE.BIN',
-    "System Volume Information", 
-    "RECYCLER",
-    "Thumbs.db"
-)
-
-$UpdateVersion = 0
-$AllowUpdate = $false
-$UpdateFromPath = "\\tower\programmierung\Powerschell\Backup-V1"
-$UpdateFile = "backup.ps1"
-$UpdateVersionFile = "VersionSettings.json"
-$ScriptInPath = Get-ScriptDirectory #path where the script stored
-$ProjectName = (get-item $ScriptInPath ).Name #only the Name of the Path
-$SettingsFile = "$ScriptInPath\BackupSettings.json"
 
 #**********************************************************************************************************************
 
@@ -234,18 +209,21 @@ if ($AdminRightsRequired) {
 
 
 function getSettings () {
+    $global:Modul = 'ENV'
     #Check for BackupSettings.json and if it there fill the Variables
     if (Test-Path($SettingsFile)) {
         $json = (Get-Content $SettingsFile -Raw) | ConvertFrom-Json
         foreach ($var in $json.psobject.properties) {
             $value = $json.psobject.properties.Where({ $_.name -eq $var.name }).value
             Set-Variable -Name $var.name -Value $value
+            log "Set-Variable -Name $var.name -Value $value"
         }
     }
+
 }
 
 function performSelfUpdate() {
-    
+    $global:Modul = 'ENV'
     $isUri = $false
     if ($UpdateFromPath -match "http") {
         #check if $UpdateFromPath contains a Uri
@@ -254,6 +232,7 @@ function performSelfUpdate() {
    
     #check version
     if ($isUri) {
+        log "Update from Uri"
         try {
             $VersionJson = (Invoke-WebRequest -Uri "$UpdateFromPath/$UpdateVersionFile" -UseBasicParsing).Content | ConvertFrom-Json
         }
@@ -264,28 +243,31 @@ function performSelfUpdate() {
            
     }
     else {
+        log "Update from Path"
         if ((Test-Path($UpdateFromPath + "\" + $UpdateFile)) -And (Test-Path($UpdateFromPath + "\" + $UpdateVersionFile))) {
             $VersionJson = (Get-Content "$UpdateFromPath\$UpdateVersionFile" -Raw) | ConvertFrom-Json
         }
     }
 
     $NewestVersion = $VersionJson.psobject.properties.Where({ $_.name -eq "CurrentVersion" }).value
-    
+    log "NewestVersion: $NewestVersion, UpdateVersion:  $NewestVersion"
+
     if ($UpdateVersion -lt $NewestVersion) {
                   
         # try {
-
+        log "Update from $UpdateVersion to $NewestVersion"
         if ($isUri) {
+            log "Get files from Uri"
             #https://www.thomasmaurer.ch/2021/07/powershell-download-script-or-file-from-github/
             #Invoke-WebRequest -Uri https://raw.githubusercontent.com/thomasmaurer/demo-cloudshell/master/helloworld.ps1 -OutFile .\helloworld.ps1
             Invoke-WebRequest -Uri "$UpdateFromPath/$UpdateFile" -OutFile "$ScriptInPath\$UpdateFile"
         }
         else {
-            #copy the File
+            log "Copy files from Path"
             copy-item "$UpdateFromPath\$UpdateFile" "$ScriptInPath\$UpdateFile" -force #-WhatIf
         }
 
-        #Set New New Version in actual Settings-Json
+        Log "Set New Version in actual Settings-Json"
         $json.UpdateVersion = $NewestVersion
         $json | ConvertTo-Json -depth 32 | set-content $SettingsFile
     
@@ -301,23 +283,56 @@ function performSelfUpdate() {
         #     exit #exit this script
         # }
         # finaly{
-        return
         # }
     }
+    return
 }
     
    
 
+
+
+
+
+
+################################################################################################################################
+#### MAIN PROGRAMM ###########
+$global:Modul = 'Variable Settings'
+
+#Region predefined Variable --> comes from BackupSettings.json, if included in the same folder
+
+$TargetPaths = @(# An Array of Targets - Save all in more then 1 Backup
+    'Y:\zz_bkp_Test\'
+)
+    
+$Excludes = @(# Working with LIKE operator -> can contains *,% etc...
+    "*xvba_debug.log", # !!!!!#xvba_debug.log must be exclude from Backup. Otherwise crashes on own debug-files
+    '*`$RECYCLE.BIN',
+    "System Volume Information", 
+    "RECYCLER",
+    "Thumbs.db"
+)
+
+$UpdateVersion = 0
+$AllowUpdate = $false
+$UpdateFromPath = "\\tower\programmierung\Powerschell\Backup-V1"
+$UpdateFile = "backup.ps1"
+$UpdateVersionFile = "VersionSettings.json"
+$ScriptInPath = Get-ScriptDirectory #path where the script stored
+$ProjectName = (get-item $ScriptInPath ).Name #only the Name of the Path
+$SettingsFile = "$ScriptInPath\BackupSettings.json"
+$currentDateTime = Get-Date -Format yyyy.MM.dd_HHmm
+
+
+#endregion
+
+
+
 # Debugging session
 if ($global:debug) {
-    Clear-Host
-    $global:DebugPrefix = 'DEBUG-Session-Info'
-
-    $currentDateTime = Get-Date -Format yyyy.MM.dd_HHmm
-    $ScriptPath = Get-ScriptDirectory 
-    
+   
     if ($global:debugTransScript) {
-        start-transcript "$ScriptPath\log\$TransScriptPrefix$(get-date -format yyyy-MM).txt"
+        start-transcript "$ScriptInPath\log\$TransScriptPrefix$(get-date -format yyyy-MM).txt"
     }
 
     log "entry"
@@ -329,8 +344,8 @@ if ($global:debug) {
     
     #$DateTimeBeforeMonth = (get-date).AddDays(-30).ToString("yyy.MM.dd") 
     
-    $ParentPath = (get-item $ScriptPath ).parent.FullName #Path to this script one level up
-    $Projekt = (get-item $ScriptPath ).Name #Pathname only
+    $ParentPath = (get-item $ScriptInPath ).parent.FullName #Path to this script one level up
+    $Projekt = (get-item $ScriptInPath ).Name #Pathname only
     
 
     write-host "`r`n"
@@ -339,7 +354,7 @@ if ($global:debug) {
         , @{Name = "Date/Time:"; Value = "[$currentDateTime]" }
         #, @{Name = "Date -30 days:";	    Value = "[$DateTimeBeforeMonth]" }
         , @{Name = "Script Pathfragment:"; Value = "[$Projekt]" }
-        , @{Name = "Complete Path:"; Value = "[$ScriptPath]" }
+        , @{Name = "Complete Path:"; Value = "[$ScriptInPath]" }
         , @{Name = "Parent Path:"; Value = "[$ParentPath]" }
     )
     $FM | ForEach-Object { [PSCustomObject]$_ } | Format-Table -Property Name, Value -AutoSize
@@ -350,16 +365,14 @@ if ($global:debug) {
 
 
 
-################################################################################################################################
-#### MAIN PROGRAMM ###########
-$global:Modul = 'Main'
-
-Clear-Host
+#Clear-Host
 
 SetDebugState($false)
   
 getSettings
 if ($AllowUpdate) { performSelfUpdate } #only if the Settings-File is there and Update is allowed
+
+$global:Modul = 'Main'
 
 # 13.09.2022 Robocopy Region
 $ExcludePath = "/XD "
@@ -384,8 +397,6 @@ if ($UseRobocopy) {
         $TP = $TargetPath + "\" + $Prefix + $ProjectName + $Sufix + "\"
         $act = "robocopy $ScriptInPath $TP $Parameter $ExcludePath"
         log $act
-        Write-Host "-->"
-        Write-Host $act
         Invoke-Expression $act
     }    
 }
