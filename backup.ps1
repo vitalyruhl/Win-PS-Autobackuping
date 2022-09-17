@@ -15,7 +15,7 @@ $Version = 100 #	03.08.2021		Vitaly Ruhl		init
 $Version = 110 #	13.09.2022		Vitaly Ruhl		Add Robocopy Option
 $Version = 111 #	13.09.2022		Vitaly Ruhl		Bugfix on source as drive like s:\
 $Version = 120 #	13.09.2022		Vitaly Ruhl		Add aditional BackupSettings.json 
-$Version = 230 #	17.09.2022		Vitaly Ruhl		Add aditional Transscript to Logfile and download actual Version from Github 
+$Version = 130 #	17.09.2022		Vitaly Ruhl		Add aditional Transscript to Logfile and download actual Version from Github 
 
 
 <#______________________________________________________________________________________________________________________
@@ -33,7 +33,7 @@ ________________________________________________________________________________
 
 #**********************************************************************************************************************
 # Settings
-$AdminRightsRequired = $false #set $true, if Admin-Rights are for the Script reqired
+[bool]$AdminRightsRequired = $false #set $true, if Admin-Rights are for the Script reqired
 $Prefix = '' #'zzz_' #Prefix of Backup-Folder
 
 #$AD = Get-Date -Format yyyy.MM.dd_HH-mm
@@ -41,10 +41,10 @@ $Sufix = '' #"_Bakup_$AD"  #Sufix of Backup-Folder
     
 # Result: zzz_ContainedFolder_Bakup_2021.08.03_22-18
 
-$CompressIntoTargetPaths = $false # Save compressed file instead of uncompressed Folder !! Not with Option UseRobocopy !!
+[bool]$CompressIntoTargetPaths = $false # Save compressed file instead of uncompressed Folder !! Not with Option UseRobocopy !!
 
 # 13.09.2022 Robocopy Region
-$UseRobocopy = $true 
+[bool]$UseRobocopy = $true 
 $Parameter = "/J /MIR /R:2 /W:1 /NP" 
 $ExcludePath = '' # '/XD D:\`$RECYCLE.BIN "System Volume Information" "RECYCLER"' #/XD exclude-fold* | /XF "C:\source\folder\path\to\folder\filename.extension"
 # end Robocopy Region
@@ -208,22 +208,47 @@ if ($AdminRightsRequired) {
 #endregion
 
 
-function getSettings () {
-    $global:Modul = 'ENV'
-    #Check for BackupSettings.json and if it there fill the Variables
-    if (Test-Path($SettingsFile)) {
-        $json = (Get-Content $SettingsFile -Raw) | ConvertFrom-Json
-        foreach ($var in $json.psobject.properties) {
-            $value = $json.psobject.properties.Where({ $_.name -eq $var.name }).value
-            Set-Variable -Name $var.name -Value $value
-            log "Set-Variable -Name $var.name -Value $value"
-        }
-    }
 
-}
 
+
+
+
+################################################################################################################################
+#### MAIN PROGRAMM ###########
+$global:Modul = 'Variable Settings'
+
+#Region predefined Variable --> comes from BackupSettings.json, if included in the same folder
+
+$TargetPaths = @(# An Array of Targets - Save all in more then 1 Backup
+    'Y:\zz_bkp_Test\'
+)
+    
+$Excludes = @(# Working with LIKE operator -> can contains *,% etc...
+    "*xvba_debug.log", # !!!!!#xvba_debug.log must be exclude from Backup. Otherwise crashes on own debug-files
+    '*`$RECYCLE.BIN',
+    "System Volume Information", 
+    "RECYCLER",
+    "Thumbs.db",
+    "test-load-settings"
+)
+
+$UpdateVersion = 0
+[bool]$AllowUpdate = $false
+$UpdateFromPath = "\\tower\programmierung\Powerschell\Backup-V1"
+$UpdateFile = "backup.ps1"
+$UpdateVersionFile = "VersionSettings.json"
+$ScriptInPath = Get-ScriptDirectory #path where the script stored
+$ProjectName = (get-item $ScriptInPath ).Name #only the Name of the Path
+$SettingsFile = "$ScriptInPath\BackupSettings.json"
+$currentDateTime = Get-Date -Format yyyy.MM.dd_HHmm
+
+
+#endregion
+
+   
 function performSelfUpdate() {
-    $global:Modul = 'ENV'
+    $global:Modul = 'update'
+    log "Entry performSelfUpdate"
     $isUri = $false
     if ($UpdateFromPath -match "http") {
         #check if $UpdateFromPath contains a Uri
@@ -287,46 +312,7 @@ function performSelfUpdate() {
     }
     return
 }
-    
-   
-
-
-
-
-
-
-################################################################################################################################
-#### MAIN PROGRAMM ###########
-$global:Modul = 'Variable Settings'
-
-#Region predefined Variable --> comes from BackupSettings.json, if included in the same folder
-
-$TargetPaths = @(# An Array of Targets - Save all in more then 1 Backup
-    'Y:\zz_bkp_Test\'
-)
-    
-$Excludes = @(# Working with LIKE operator -> can contains *,% etc...
-    "*xvba_debug.log", # !!!!!#xvba_debug.log must be exclude from Backup. Otherwise crashes on own debug-files
-    '*`$RECYCLE.BIN',
-    "System Volume Information", 
-    "RECYCLER",
-    "Thumbs.db"
-)
-
-$UpdateVersion = 0
-$AllowUpdate = $false
-$UpdateFromPath = "\\tower\programmierung\Powerschell\Backup-V1"
-$UpdateFile = "backup.ps1"
-$UpdateVersionFile = "VersionSettings.json"
-$ScriptInPath = Get-ScriptDirectory #path where the script stored
-$ProjectName = (get-item $ScriptInPath ).Name #only the Name of the Path
-$SettingsFile = "$ScriptInPath\BackupSettings.json"
-$currentDateTime = Get-Date -Format yyyy.MM.dd_HHmm
-
-
-#endregion
-
-
+      
 
 # Debugging session
 if ($global:debug) {
@@ -363,6 +349,22 @@ if ($global:debug) {
     #start-countdown 10
 }
 
+$global:Modul = 'ENV'
+#Check for BackupSettings.json and if it there fill the Variables
+if (Test-Path($SettingsFile)) {
+    $json = (Get-Content $SettingsFile -Raw) | ConvertFrom-Json
+    foreach ($var in $json.psobject.properties) {
+        $value = $json.psobject.properties.Where({ $_.name -eq $var.name }).value
+        if ($var.name -is [bool]) {
+            #now bugfix on bools
+            #convert to bool
+            $value = [bool]$value
+        }
+        Set-Variable -Name $var.name -Value $value
+        $logText = "Set-Variable " + $var.name + "-->[$value]"
+        log $logText
+    }
+}
 
 
 #Clear-Host
@@ -370,6 +372,9 @@ if ($global:debug) {
 SetDebugState($false)
   
 getSettings
+log "AllowUpdate: $AllowUpdate"
+$Excludes | ForEach-Object { log "Excludes: $_" }
+
 if ($AllowUpdate) { performSelfUpdate } #only if the Settings-File is there and Update is allowed
 
 $global:Modul = 'Main'
