@@ -1,9 +1,10 @@
 {
+    "global:debugTransScript":  false,
+    "global:debug":  0,
     "UpdateVersion":  130,
+    "AdminRightsRequired":  0,
     "AllowUpdate":  1,
     "UpdateFromPath":  "https://raw.githubusercontent.com/vitalyruhl/Win-PS-Autobackuping/master",
-    "UpdateFromPath-actual":  "\\\\tower\\programmierung\\Powerschell\\Backup-V1",
-    "UpdateFromPath-temp":  "C:\\Daten\\Programmierung\\Powerschell\\Backup-V1",
     "UpdateFile":  "backup.ps1",
     "UpdateVersionFile":  "VersionSettings.json",
     "Prefix":  "",
@@ -20,8 +21,5 @@
                      "SystemVolumeInformation",
                      "RECYCLER",
                      "Thumbs.db"
-                 ],
-    "AdminRightsRequired":  0,
-    "global:debug":  0,
-    "global:debugTransScript":  false
+                 ]
 }

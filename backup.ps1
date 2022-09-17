@@ -27,7 +27,6 @@ ________________________________________________________________________________
 <#______________________________________________________________________________________________________________________
     To-Do / Errors:
         03.08.2021 Exclusion don't work with kompressing -> its copy all file (not implemented yet)
-        03.08.2021 If there no sub-Folder, the script will not working (add the Path not automaticly)
 ______________________________________________________________________________________________________________________#>
 
 
@@ -57,7 +56,7 @@ $ExcludePath = '' # '/XD D:\`$RECYCLE.BIN "System Volume Information" "RECYCLER"
 
 #**********************************************************************************************************************
 # Debug Settings
-[bool]$global:debug = $true # $true $false
+[bool]$global:debug = $false # $true $false
 [bool]$global:debugTransScript = $false # $true $false
 $global:DebugPrefix = $Funktion + ' ' + $Version + ' -> ' #Variable für Debug-log vorbelegen
 $global:TransScriptPrefix = "Log_" + $Funktion + '_' + $Version
@@ -210,9 +209,6 @@ if ($AdminRightsRequired) {
 
 
 
-
-
-
 ################################################################################################################################
 #### MAIN PROGRAMM ###########
 $global:Modul = 'Variable Settings'
@@ -314,6 +310,23 @@ function performSelfUpdate() {
 }
       
 
+$global:Modul = 'ENV'
+#Check for BackupSettings.json and if it there fill the Variables
+if (Test-Path($SettingsFile)) {
+    $json = (Get-Content $SettingsFile -Raw) | ConvertFrom-Json
+    foreach ($var in $json.psobject.properties) {
+        $value = $json.psobject.properties.Where({ $_.name -eq $var.name }).value
+        if ($var.name -is [bool]) {
+            #now bugfix on bools
+            #convert to bool
+            $value = [bool]$value
+        }
+        Set-Variable -Name $var.name -Value $value
+        $logText = "Set-Variable " + $var.name + "-->[$value]"
+        log $logText
+    }
+}
+
 # Debugging session
 if ($global:debug) {
    
@@ -349,24 +362,6 @@ if ($global:debug) {
     #start-countdown 10
 }
 
-$global:Modul = 'ENV'
-#Check for BackupSettings.json and if it there fill the Variables
-if (Test-Path($SettingsFile)) {
-    $json = (Get-Content $SettingsFile -Raw) | ConvertFrom-Json
-    foreach ($var in $json.psobject.properties) {
-        $value = $json.psobject.properties.Where({ $_.name -eq $var.name }).value
-        if ($var.name -is [bool]) {
-            #now bugfix on bools
-            #convert to bool
-            $value = [bool]$value
-        }
-        Set-Variable -Name $var.name -Value $value
-        $logText = "Set-Variable " + $var.name + "-->[$value]"
-        log $logText
-    }
-}
-
-
 #Clear-Host
 
 SetDebugState($false)
@@ -385,7 +380,6 @@ $Excludes | ForEach-Object {
     $ExcludePath += '"' + $_ + '" '
 }
 # end Robocopy Region
-
 
 if ($TargetPaths -eq 0) {
     $TargetPaths[0] = $ScriptInPath + $Prefix + '_' + $AktualDate + $Sufix #if target not Set -> save in Prevous Path
@@ -450,7 +444,6 @@ else {
     }
 }    
 #endregion
-
 
 
 #$FilesObject | ConvertTo-Json
