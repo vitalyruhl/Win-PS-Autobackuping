@@ -1,5 +1,5 @@
 {
-    "UpdateVersion":  120,
+    "UpdateVersion":  130,
     "AllowUpdate":  1,
     "UpdateFromPath":  "https://raw.githubusercontent.com/vitalyruhl/Win-PS-Autobackuping/master",
     "UpdateFromPath-actual":  "\\\\tower\\programmierung\\Powerschell\\Backup-V1",
@@ -23,5 +23,5 @@
                  ],
     "AdminRightsRequired":  0,
     "global:debug":  0,
-    "global:debugTransScript" : false
+    "global:debugTransScript":  false
 }

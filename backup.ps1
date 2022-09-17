@@ -370,7 +370,8 @@ if (Test-Path($SettingsFile)) {
 #Clear-Host
 
 SetDebugState($false)
-  
+
+log "`r`n`r`n"
 log "AllowUpdate: $AllowUpdate"
 $Excludes | ForEach-Object { log "Excludes: $_" }
 
