@@ -21,5 +21,7 @@
                      "RECYCLER",
                      "Thumbs.db"
                  ],
-    "AdminRightsRequired":  0
+    "AdminRightsRequired":  0,
+    "global:debug":  0,
+    "global:debugTransScript" : false
 }

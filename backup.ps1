@@ -57,8 +57,8 @@ $ExcludePath = '' # '/XD D:\`$RECYCLE.BIN "System Volume Information" "RECYCLER"
 
 #**********************************************************************************************************************
 # Debug Settings
-$global:debug = $true # $true $false
-$global:debugTransScript = $false # $true $false
+[bool]$global:debug = $true # $true $false
+[bool]$global:debugTransScript = $false # $true $false
 $global:DebugPrefix = $Funktion + ' ' + $Version + ' -> ' #Variable für Debug-log vorbelegen
 $global:TransScriptPrefix = "Log_" + $Funktion + '_' + $Version
 $global:Modul = 'Main' #Variable für Debug-log vorbelegen
@@ -371,7 +371,6 @@ if (Test-Path($SettingsFile)) {
 
 SetDebugState($false)
   
-getSettings
 log "AllowUpdate: $AllowUpdate"
 $Excludes | ForEach-Object { log "Excludes: $_" }
 
