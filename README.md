@@ -79,8 +79,7 @@ If you have BackupSettings.json in the same folder as the Script, it will use th
 }
 ```
 
-you can use some local path to update your script:
-
+you can use a local path to update your script:
 
 ```json
 "UpdateFromPath":"\\\\myserver\\ps-scripts\\Powerschell\\Backup",
@@ -94,10 +93,10 @@ all variables, not included in the BackupSettings.json will be set to the defaul
 ## To-Do / Errors: 
 
 - 03.08.2021 Exclusion don't work with compressing -> its copy all files
-- 18.09.2022 Add format-variables like %date% to the prefix and sufix
-- 18.09.2022 Add a function to delete old backups
+- 18.09.2022 Add format-variables like %date% to the prefix and sufix on uses settings.json
+- 18.09.2022 Add a function to delete old backups, helpfull on compresssed backups with suffixes and prefixes
 - 18.09.2022 Add pssibility to rename script, and backup them also (for use multiple script in same folder)
-- 18.09.2022 Register the script as a Windows Task must be changed for every script you need. It need a Refactoring to the backup.ps1 to run it over settings.json, or command parameter.
+- 18.09.2022 Register the script as a windows task must be changed for every script you need. It need a Refactoring to the backup.ps1 to run it over settings.json, or command parameter.
 
 
 
