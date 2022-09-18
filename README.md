@@ -37,10 +37,14 @@ If you have BackupSettings.json in the same folder as the Script, it will use th
 
 1. clone this repo
 2. right click on `backup.ps1` and select `Properties`
-3. in the section `open with`, select `change` ![Screenshot1](assets/Screenshot_1.jpg)
-4. scroll down and choose `More apps` ![Screenshot2](assets/Screenshot_2.jpg)
-5. scroll down and choose `Look for another app on this PC` ![Screenshot3](assets/Screenshot_3.jpg)
-6. paste `C:\Windows\System32\WindowsPowerShell\v1.0` in adressfield and press enter ![Screenshot4](assets/Screenshot_4.jpg)
+3. in the section `open with`, select `change`
+  + ![Screenshot1](assets/Screenshot_1.jpg)
+4. scroll down and choose `More apps`
+  + ![Screenshot2](assets/Screenshot_2.jpg)
+5. scroll down and choose `Look for another app on this PC`
+  + ![Screenshot3](assets/Screenshot_3.jpg)
+6. paste `C:\Windows\System32\WindowsPowerShell\v1.0` in adressfield and press enter
+  + ![Screenshot4](assets/Screenshot_4.jpg)
 7. select `PowerShell.exe` and choose open
 
 ---
