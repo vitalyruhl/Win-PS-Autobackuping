@@ -16,6 +16,7 @@ $Version = 110 #	13.09.2022		Vitaly Ruhl		Add Robocopy Option
 $Version = 111 #	13.09.2022		Vitaly Ruhl		Bugfix on source as drive like s:\
 $Version = 120 #	13.09.2022		Vitaly Ruhl		Add aditional BackupSettings.json 
 $Version = 130 #	17.09.2022		Vitaly Ruhl		Add aditional Transscript to Logfile and download actual Version from Github 
+$Version = 131 #	17.09.2022		Vitaly Ruhl		Bugfix on no Internet Connection 
 
 
 <#______________________________________________________________________________________________________________________
@@ -26,7 +27,7 @@ ________________________________________________________________________________
 
 <#______________________________________________________________________________________________________________________
     To-Do / Errors:
-        03.08.2021 Exclusion don't work with kompressing -> its copy all file (not implemented yet)
+        03.08.2021 Exclusion don't work with compressing -> its copy all files (not implemented yet)
 ______________________________________________________________________________________________________________________#>
 
 
@@ -259,7 +260,7 @@ function performSelfUpdate() {
         }
         catch {
             Write-Warning "Error in Update-Check - Check your Internet-Connection"
-            breack
+            return 
         }
            
     }
@@ -275,7 +276,7 @@ function performSelfUpdate() {
 
     if ($UpdateVersion -lt $NewestVersion) {
                   
-        # try {
+        try {
         log "Update from $UpdateVersion to $NewestVersion"
         if ($isUri) {
             log "Get files from Uri"
@@ -297,14 +298,12 @@ function performSelfUpdate() {
         pause
         if ($global:debugTransScript) { Stop-Transcript }
         exit #exit this script
-        # }
-        # catch {
-        #     Write-Warning "Error in Update-Check - Check your Settings or internet-Connection"
-        #     if ($global:debugTransScript) { Stop-Transcript }
-        #     exit #exit this script
-        # }
-        # finaly{
-        # }
+        }
+        catch {
+            Write-Warning "Error in Update-Check - Check your Settings or internet-Connection"
+            if ($global:debugTransScript) { Stop-Transcript }
+            return #exit this script
+        }
     }
     return
 }

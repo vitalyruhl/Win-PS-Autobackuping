@@ -8,7 +8,9 @@
 
 ## Powershell Autobackuping Script for Windows. 
 
-It uses Robocopy, or Powershell copy and can compress the Files with 7zip. Tere are some Settings you can change in the Script. If you have BackupSettings.json in the same folder as the Script, it will use the settings from there. If you don't have a BackupSettings.json, it will use the default settings.
+It uses Robocopy as standard, or Powershell, to copy all the files and folders in the script folder to one or more targets. The files can be compressed with 7zip (no robocopy there and no exclusions). Tere are some Settings you can change in the Script. 
+
+If you have BackupSettings.json in the same folder as the Script, it will use the settings from there. If you don't have a BackupSettings.json, it will use the default settings from script.
 
 ## Function:
 
@@ -26,7 +28,7 @@ It uses Robocopy, or Powershell copy and can compress the Files with 7zip. Tere 
 1. open powershell as administrator
 2. run `Set-ExecutionPolicy RemoteSigned`
 
->optional: `Get-ExecutionPolicy -list |% {Set-ExecutionPolicy -scope $_.scope remotesigned -force -ErrorAction SilentlyContinue}` 
+>optional: `Get-ExecutionPolicy -list |% {Set-ExecutionPolicy -scope $_.scope remotesigned -force -ErrorAction SilentlyContinue}`
 >>this script set all scopes to remotesigned, but throws some errors, because not all scopes are available on all systems
 
 <br>
@@ -77,7 +79,7 @@ you can use some local path to update your script:
 
 
 ```json
-"UpdateFromPath":""\\\\myserver\\ps-scripts\\Powerschell\\Backup"",
+"UpdateFromPath":"\\\\myserver\\ps-scripts\\Powerschell\\Backup",
 
 ```
 
@@ -87,7 +89,13 @@ all variables, not included in the BackupSettings.json will be set to the defaul
 
 ## To-Do / Errors: 
 
- - 03.08.2021 Exclusion don't work with kompressing -> its copy all files (not implemented yet)
+- 03.08.2021 Exclusion don't work with compressing -> its copy all files
+- 18.09.2022 Add format-variables like %date% to the prefix and sufix
+- 18.09.2022 Add a function to delete old backups
+- 18.09.2022 Add pssibility to rename script, and backup them also (for use multiple script in same folder)
+- 18.09.2022 Register the script as a Windows Task must be changed for every script you need. It need a Refactoring to the backup.ps1 to run it over settings.json, or command parameter.
+
+
 
 <br>
 
@@ -95,9 +103,13 @@ all variables, not included in the BackupSettings.json will be set to the defaul
 
 ## What's new
 
+### V1.3.1
+
+- 18.09.2022 - Bugfix on no internet connection  
+
 ### V1.3.0
 
-- 17.09.2022 - Add aditional Transscript to Logfile and download actual Version from Github 
+- 17.09.2022 - Add aditional transscript to togfile and download actual version from GitHub 
 
 ### V1.2.0
 
@@ -109,7 +121,7 @@ all variables, not included in the BackupSettings.json will be set to the defaul
 
 ### V1.1.0
 
-- 13.09.2022 - Add Robocopy Option
+- 13.09.2022 - Add robocopy option
 
 ### V1.0.0
 

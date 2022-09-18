@@ -8,23 +8,23 @@
     
     Version  Datum           Author        Beschreibung
     -------  ----------      -----------   -----------
-	V1.0.0     13.05.2020      Vitaly Ruhl   Erstellungsversion 
-	V1.0.1     18.06.2020      Vitaly Ruhl   bereinigen 
+	V1.0.0     13.05.2020      Vitaly Ruhl   Initial Version
+	V1.0.1     18.06.2020      Vitaly Ruhl   Cleared Code 
+	V1.0.2     18.09.2022      Vitaly Ruhl   Get source automaticly, Eventlog-Name changeble 
     
-    Funktionsbeschreibung:
-    Windows-Cron (Aufgabenplaner) registrieren
+    Function:
+    register Windows-Cron (Taskplaner)
     **********************************************************************************************************************
 #>
 
 #**********************************************************************************************************************
 #Settings
-	$ErrorActionPreference = "Continue" #Fehlerbehandlung im Skript - Bei Fehler einfach mal weitergehen, aber Fehler ausgeben....(Möglich:Ignore,SilentlyContinue,Continue,Stop,Inquire) 
+	$ErrorActionPreference = "Continue" 
 	$debug = $false # $true $false
 
+	$NameEventLog = "MyBackups"
 	$NewTaskName = 'FileBackup V1.0.1'
-	$CronTriggerScript = '"C:\Daten\Programmierung\Powerschell\Backup.ps1"'
-	
-	# Set the Trigger
+		# Set the Trigger weekly on Sunday at 03:00 am
 	$trig    = New-ScheduledTaskTrigger -Weekly -WeeksInterval 1 -DaysOfWeek Saturday -At 3am
 
 #**********************************************************************************************************************
@@ -35,7 +35,7 @@
 
 	function whr ()	{Write-Host "`r`n`r`n"}
 	
-	function trenn ($text)
+	function section ($text)
 	{
 		whr #-ForegroundColor Yellow
 		Write-Host '-----------------------------------------------------------------------------------------------'# -ForegroundColor Yellow
@@ -45,8 +45,7 @@
 		
 	function Get-ScriptDirectory { #Return complete Path from this script
 		<#
-			#Beispiel...
-			$InstallPath = Get-ScriptDirectory #Pfad wo der Skript ist
+			$InstallPath = Get-ScriptDirectory
 		#>
 		$Invocation = (Get-Variable MyInvocation -Scope 1).Value
 		return Split-Path $Invocation.MyCommand.Path
@@ -59,16 +58,18 @@
 #**********************************************************************************************************************
 # MAIN Functions
 
-#$PC  = $env:computername #Aktuellen PC-Namen ermitteln
+#$PC  = $env:computername 
 
 $currentDateTime = Get-Date -Format yyyy_MM_dd_HHmm
 #$dt = Get-Date -Format yyyy_MM #_HHmm
-$InstallPath = Get-ScriptDirectory #Pfad wo der Skript ist
+$InstallPath = Get-ScriptDirectory 
+$CronTriggerScript = "$InstallPath\Backup.ps1"
+	
 
 if ($debug) 
 {
     Clear-Host
-    trenn " Debug aktiv "
+    section " Debug aktiv "
     Write-Host ""
     Write-Host "Datum/Zeit        : [$currentDateTime]"
     Write-Host "Verzeichnis       : [$InstallPath]"
@@ -81,7 +82,7 @@ $EF = Get-ScheduledTask | Where-Object TaskName -eq $NewTaskName -ErrorAction Si
 
 if ($EF)
 {
-	trenn "The Windows-Task [$NewTaskName] exists...  --> Plese delete them manually and run again..."
+	section "The Windows-Task [$NewTaskName] exists...  --> Plese delete them manually and run again..."
 	Pause
 	return
 }
@@ -120,7 +121,7 @@ else
 	} 
 	else 
 	{
-		New-EventLog -Source "MyBackups" -LogName "MyBackups"
+		New-EventLog -Source "$NameEventLog" -LogName "$NameEventLog"
 	} 
 	
 	try 
@@ -134,20 +135,20 @@ else
 		$conf    = New-ScheduledTaskSettingsSet -WakeToRun #-RunOnlyIfIdle
 		$STPrincipal = New-ScheduledTaskPrincipal -RunLevel Highest -User $username #-Password $Password 
 		$MyTask =  New-ScheduledTask -Action $action -Settings $conf -Trigger $trig -Principal $STPrincipal 
-		Register-ScheduledTask $NewTaskName -TaskPath "\MyBackups" -InputObject $MyTask -User $username -Password $Password -Force 
-		Write-EventLog -LogName 'MyBackups' -Source 'MyBackups' -EventID 1111 -EntryType Information -Message "Windows-Cron '$NewTaskName' crated from '$CronTriggerScript'"
+		Register-ScheduledTask $NewTaskName -TaskPath "\$NameEventLog" -InputObject $MyTask -User $username -Password $Password -Force 
+		Write-EventLog -LogName "$NameEventLog" -Source "$NameEventLog" -EventID 1111 -EntryType Information -Message "Windows-Cron '$NewTaskName' crated from '$CronTriggerScript'"
 	}
 
 	catch
 	{
 		$errText = "Windows-Cron '$NewTaskName' --> creation failed `r`n Error: $Error `r`n"
 		if ($debug) {Write-Host $errText}
-		Write-EventLog -LogName 'MyBackups' -Source 'MyBackups' -EventID 1111 -EntryType Error -Message $errText
+		Write-EventLog -LogName "$NameEventLog" -Source "$NameEventLog" -EventID 1111 -EntryType Error -Message $errText
 	}
 
 	finally
 	{
-		if ($debug) {Get-ScheduledTask | Where-Object TaskName -eq $NewTaskName } #Schow the creeated Task - when nothing to see --> get wrong!
+		if ($debug) {Get-ScheduledTask | Where-Object TaskName -eq $NewTaskName } #Show the creeated Task - when nothing to see --> get wrong!
 	}
 
 
@@ -157,7 +158,7 @@ else
 #Set-ExecutionPolicy -Scope Process Unrestricted
 
 if ($debug) {
-	trenn 'Ready!'
+	section 'Ready!'
 	pause
 }
 
