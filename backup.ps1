@@ -256,8 +256,8 @@ function performSelfUpdate() {
     #check version
     if ($isUri) {
         log "Update from Uri"
-        try {
-            $VersionJson = (Invoke-WebRequest -Uri "$UpdateFromPath/$UpdateVersionFile" -UseBasicParsing).Content | ConvertFrom-Json 
+        try {$VersionJson = (Invoke-WebRequest -Uri "$UpdateFromPath/$UpdateVersionFile" -UseBasicParsing).Content | ConvertFrom-Json
+            
         }
         catch {
             Write-Warning "Error in Update-Check - Check your Internet-Connection"

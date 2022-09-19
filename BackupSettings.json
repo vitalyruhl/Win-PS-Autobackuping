@@ -1,7 +1,7 @@
 {
     "global:debugTransScript":  false,
     "global:debug":  false,
-    "UpdateVersion":  130,
+    "UpdateVersion":  132,
     "AdminRightsRequired":  false,
     "AllowUpdate":  1,
     "UpdateFromPath":  "https://raw.githubusercontent.com/vitalyruhl/Win-PS-Autobackuping/master",
