@@ -256,8 +256,8 @@ function performSelfUpdate() {
     #check version
     if ($isUri) {
         log "Update from Uri"
-        try {$VersionJson = (Invoke-WebRequest -Uri "$UpdateFromPath/$UpdateVersionFile" -UseBasicParsing).Content | ConvertFrom-Json
-            
+        try {
+            $VersionJson = (Invoke-WebRequest -Uri "$UpdateFromPath/$UpdateVersionFile" -UseBasicParsing).Content | ConvertFrom-Json 
         }
         catch {
             Write-Warning "Error in Update-Check - Check your Internet-Connection"
@@ -283,7 +283,7 @@ function performSelfUpdate() {
             log "Get files from Uri"
             #https://www.thomasmaurer.ch/2021/07/powershell-download-script-or-file-from-github/
             #Invoke-WebRequest -Uri https://raw.githubusercontent.com/thomasmaurer/demo-cloudshell/master/helloworld.ps1 -OutFile .\helloworld.ps1
-            Invoke-WebRequest -Uri "$UpdateFromPath/$UpdateFile" -OutFile "`"$ScriptInPath\$UpdateFile`""
+            Invoke-WebRequest -Uri "$UpdateFromPath/$UpdateFile" -OutFile "$ScriptInPath\$UpdateFile"
         }
         else {
             log "Copy files from Path"
