@@ -106,6 +106,10 @@ all variables, not included in the BackupSettings.json will be set to the defaul
 
 ## What's new
 
+### V1.3.2
+
+- 19.09.2022 - Bugfix script crash on target with whitespaces  
+
 ### V1.3.1
 
 - 18.09.2022 - Bugfix on no internet connection  

@@ -17,6 +17,7 @@ $Version = 111 #	13.09.2022		Vitaly Ruhl		Bugfix on source as drive like s:\
 $Version = 120 #	13.09.2022		Vitaly Ruhl		Add aditional BackupSettings.json 
 $Version = 130 #	17.09.2022		Vitaly Ruhl		Add aditional Transscript to Logfile and download actual Version from Github 
 $Version = 131 #	17.09.2022		Vitaly Ruhl		Bugfix on no Internet Connection 
+$Version = 132 #	19.09.2022		Vitaly Ruhl		Bugfix script crash on target with whitespaces  
 
 
 <#______________________________________________________________________________________________________________________
@@ -231,7 +232,7 @@ $Excludes = @(# Working with LIKE operator -> can contains *,% etc...
 
 $UpdateVersion = 0
 [bool]$AllowUpdate = $false
-$UpdateFromPath = "\\tower\programmierung\Powerschell\Backup-V1"
+$UpdateFromPath = "https://raw.githubusercontent.com/vitalyruhl/Win-PS-Autobackuping/master"
 $UpdateFile = "backup.ps1"
 $UpdateVersionFile = "VersionSettings.json"
 $ScriptInPath = Get-ScriptDirectory #path where the script stored
@@ -255,8 +256,8 @@ function performSelfUpdate() {
     #check version
     if ($isUri) {
         log "Update from Uri"
-        try {
-            $VersionJson = (Invoke-WebRequest -Uri "$UpdateFromPath/$UpdateVersionFile" -UseBasicParsing).Content | ConvertFrom-Json
+        try {$VersionJson = (Invoke-WebRequest -Uri "$UpdateFromPath/$UpdateVersionFile" -UseBasicParsing).Content | ConvertFrom-Json
+            
         }
         catch {
             Write-Warning "Error in Update-Check - Check your Internet-Connection"
@@ -266,8 +267,8 @@ function performSelfUpdate() {
     }
     else {
         log "Update from Path"
-        if ((Test-Path($UpdateFromPath + "\" + $UpdateFile)) -And (Test-Path($UpdateFromPath + "\" + $UpdateVersionFile))) {
-            $VersionJson = (Get-Content "$UpdateFromPath\$UpdateVersionFile" -Raw) | ConvertFrom-Json
+        if ((Test-Path('"' + $UpdateFromPath + "\" + $UpdateFile + '"')) -And (Test-Path('"' + $UpdateFromPath + "\" + $UpdateVersionFile + '"'))) {
+            $VersionJson = (Get-Content "`"$UpdateFromPath\$UpdateVersionFile`"" -Raw) | ConvertFrom-Json
         }
     }
 
@@ -282,11 +283,11 @@ function performSelfUpdate() {
             log "Get files from Uri"
             #https://www.thomasmaurer.ch/2021/07/powershell-download-script-or-file-from-github/
             #Invoke-WebRequest -Uri https://raw.githubusercontent.com/thomasmaurer/demo-cloudshell/master/helloworld.ps1 -OutFile .\helloworld.ps1
-            Invoke-WebRequest -Uri "$UpdateFromPath/$UpdateFile" -OutFile "$ScriptInPath\$UpdateFile"
+            Invoke-WebRequest -Uri "$UpdateFromPath/$UpdateFile" -OutFile "`"$ScriptInPath\$UpdateFile`""
         }
         else {
             log "Copy files from Path"
-            copy-item "$UpdateFromPath\$UpdateFile" "$ScriptInPath\$UpdateFile" -force #-WhatIf
+            copy-item "`"$UpdateFromPath\$UpdateFile`"" "`"$ScriptInPath\$UpdateFile`"" -force #-WhatIf
         }
 
         Log "Set New Version in actual Settings-Json"
@@ -330,7 +331,7 @@ if (Test-Path($SettingsFile)) {
 if ($global:debug) {
    
     if ($global:debugTransScript) {
-        start-transcript "$ScriptInPath\log\$TransScriptPrefix$(get-date -format yyyy-MM).txt"
+        start-transcript "`"$ScriptInPath\log\$TransScriptPrefix$(get-date -format yyyy-MM).txt`""
     }
 
     log "entry"
@@ -393,7 +394,7 @@ if ($UseRobocopy) {
     Write-Host "Exclude This:[$ExcludePath]"
     foreach ( $TargetPath in $TargetPaths ) {
         $TP = $TargetPath + "\" + $Prefix + $ProjectName + $Sufix + "\"
-        $act = "robocopy $ScriptInPath $TP $Parameter $ExcludePath"
+        $act = "robocopy `"$ScriptInPath`" `"$TP`" $Parameter $ExcludePath"
         log $act
         Invoke-Expression $act
     }    
@@ -410,7 +411,7 @@ else {
             Write-Host "Copying:" $_
             $zd = $_ + '\' + $Prefix + $ProjectName + $Sufix + '.7z'
             write-host "Save there: $zd"
-            compress "$ScriptInPath" "$zd"
+            compress "`"$ScriptInPath`"" "`"$zd`""
         }  
     }
     else {
@@ -423,7 +424,7 @@ else {
                         
             foreach ( $TargetPath in $TargetPaths ) {
 
-                $TP = $TargetPath + "\" + $Prefix + $ProjectName + $Sufix + "\"
+                $TP = '"' + $TargetPath + "\" + $Prefix + $ProjectName + $Sufix + "\" + '"'
 
                 try {
                     if (! $_.PSIsContainer) {     
