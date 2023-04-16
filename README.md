@@ -62,6 +62,15 @@ If you have BackupSettings.json in the same folder as the Script, it will use th
 
 ```json
 {
+  "SourcePaths":  [
+        "./",
+        "T:\\zz_bkp_setings_folder"
+    ],
+  "UseCoherentBackup":  true,
+  "TargetPaths":  [
+      "T:\\myAppBackupFolder\\",
+      "T:\\myAppBackupFolder\\settings\\"
+                  ],
   "global:debugTransScript": false,
   "global:debug": false,
   "UpdateVersion": 130,
@@ -75,9 +84,8 @@ If you have BackupSettings.json in the same folder as the Script, it will use th
   "CompressIntoTargetPaths": false,
   "UseRobocopy": true,
   "Parameter": "/J /MIR /R:2 /W:1 /NP /COMPRESS",
-  "TargetPaths": ["T:\\zz_bkp_Test1\\"],
   "Excludes": [
-    "*xvba_debug.log",
+    "*.log",
     "*RECYCLE.BIN",
     "SystemVolumeInformation",
     "RECYCLER",
