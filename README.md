@@ -6,16 +6,16 @@
 <!-- markdownlint-disable MD025 -->
 <!-- markdownlint-disable MD026 -->
 
-## Powershell Autobackuping Script for Windows. 
+## Powershell Autobackuping Script for Windows.
 
-It uses Robocopy as standard, or Powershell, to copy all the files and folders in the script folder to one or more targets. The files can be compressed with 7zip (no robocopy there and no exclusions). Tere are some Settings you can change in the Script. 
+It uses Robocopy as standard, or Powershell, to copy all the files and folders in the script folder to one or more targets. The files can be compressed with 7zip (no robocopy there and no exclusions). Tere are some Settings you can change in the Script.
 
 If you have BackupSettings.json in the same folder as the Script, it will use the settings from there. If you don't have a BackupSettings.json, it will use the default settings from script.
 
 ## Function:
 
 - Make backup of all Files in contained folder, except exclusions...
-- WindowsCronRegister-backup.ps1 can register the Script as a Windows Task, so it will run every day at the time you set in the Script. 
+- WindowsCronRegister-backup.ps1 can register the Script as a Windows Task, so it will run every day at the time you set in the Script.
 
 ---
 
@@ -28,8 +28,9 @@ If you have BackupSettings.json in the same folder as the Script, it will use th
 1. open powershell as administrator
 2. run `Set-ExecutionPolicy RemoteSigned`
 
->optional: `Get-ExecutionPolicy -list |% {Set-ExecutionPolicy -scope $_.scope remotesigned -force -ErrorAction SilentlyContinue}`
->>this script set all scopes to remotesigned, but throws some errors, because not all scopes are available on all systems
+> optional: `Get-ExecutionPolicy -list |% {Set-ExecutionPolicy -scope $_.scope remotesigned -force -ErrorAction SilentlyContinue}`
+>
+> > this script set all scopes to remotesigned, but throws some errors, because not all scopes are available on all systems
 
 <br>
 
@@ -38,13 +39,21 @@ If you have BackupSettings.json in the same folder as the Script, it will use th
 1. clone this repo
 2. right click on `backup.ps1` and select `Properties`
 3. in the section `open with`, select `change`
-  + ![Screenshot1](assets/Screenshot_1.jpg)
+
+- ![Screenshot1](assets/Screenshot_1.jpg)
+
 4. scroll down and choose `More apps`
-  + ![Screenshot2](assets/Screenshot_2.jpg)
+
+- ![Screenshot2](assets/Screenshot_2.jpg)
+
 5. scroll down and choose `Look for another app on this PC`
-  + ![Screenshot3](assets/Screenshot_3.jpg)
+
+- ![Screenshot3](assets/Screenshot_3.jpg)
+
 6. paste `C:\Windows\System32\WindowsPowerShell\v1.0` in adressfield and press enter
-  + ![Screenshot4](assets/Screenshot_4.jpg)
+
+- ![Screenshot4](assets/Screenshot_4.jpg)
+
 7. select `PowerShell.exe` and choose open
 
 ---
@@ -53,29 +62,27 @@ If you have BackupSettings.json in the same folder as the Script, it will use th
 
 ```json
 {
-    "global:debugTransScript":false,
-    "global:debug":false,
-    "UpdateVersion":130,
-    "AdminRightsRequired":false,
-    "AllowUpdate":true,
-    "UpdateFromPath":"https://raw.githubusercontent.com/vitalyruhl/Win-PS-Autobackuping/master",
-    "UpdateFile":"backup.ps1",
-    "UpdateVersionFile":"VersionSettings.json",
-    "Prefix":"",
-    "Sufix":"",
-    "CompressIntoTargetPaths":false,
-    "UseRobocopy":true,
-    "Parameter":"/J /MIR /R:2 /W:1 /NP /COMPRESS",
-    "TargetPaths":  [
-                        "T:\\zz_bkp_Test1\\"
-                    ],
-    "Excludes":  [
-                     "*xvba_debug.log",
-                     "*RECYCLE.BIN",
-                     "SystemVolumeInformation",
-                     "RECYCLER",
-                     "Thumbs.db"
-                 ]
+  "global:debugTransScript": false,
+  "global:debug": false,
+  "UpdateVersion": 130,
+  "AdminRightsRequired": false,
+  "AllowUpdate": true,
+  "UpdateFromPath": "https://raw.githubusercontent.com/vitalyruhl/Win-PS-Autobackuping/master",
+  "UpdateFile": "backup.ps1",
+  "UpdateVersionFile": "VersionSettings.json",
+  "Prefix": "",
+  "Sufix": "",
+  "CompressIntoTargetPaths": false,
+  "UseRobocopy": true,
+  "Parameter": "/J /MIR /R:2 /W:1 /NP /COMPRESS",
+  "TargetPaths": ["T:\\zz_bkp_Test1\\"],
+  "Excludes": [
+    "*xvba_debug.log",
+    "*RECYCLE.BIN",
+    "SystemVolumeInformation",
+    "RECYCLER",
+    "Thumbs.db"
+  ]
 }
 ```
 
@@ -90,15 +97,16 @@ all variables, not included in the BackupSettings.json will be set to the defaul
 
 ---
 
-## To-Do / Errors: 
+## To-Do / Errors:
 
 - 03.08.2021 Exclusion don't work with compressing -> its copy all files
 - 18.09.2022 Add format-variables like %date% to the prefix and sufix on uses settings.json
 - 18.09.2022 Add a function to delete old backups, helpfull on compresssed backups with suffixes and prefixes
 - 18.09.2022 Add pssibility to rename script, and backup them also (for use multiple script in same folder)
 - 18.09.2022 Register the script as a windows task must be changed for every script you need. It need a Refactoring to the backup.ps1 to run it over settings.json, or command parameter.
-
-
+- 16.04.2023 Add updatesupport for Script without backupSettings.json and witoout settings overriden in the script
+- 16.04.2023 correct parameter. On this time are excludes folder only, add /XF for files
+- 16.04.2023 remove old copy, use only robocopy.
 
 <br>
 
@@ -106,21 +114,72 @@ all variables, not included in the BackupSettings.json will be set to the defaul
 
 ## What's new
 
+### V1.4.0
+
+- 16.04.2023 - Add multiple source and target support
+
+  New Parameter in BackupSettings.json:
+
+  ```json
+  "SourcePaths":  [
+                      "./",
+                      "C:\\Users\\vivil\\Pictures\\"
+                  ],
+  "TargetPaths":  [
+                      "T:\\zz_bkp_Test1\\",
+                      "T:\\zz_bkp_Test2\\"
+                  ],
+  "UseCoherentBackup":  true,
+
+  ```
+
+  Example-2:
+
+  - If you want to backup the script folder and a folder with settings, you can use the following example:
+    - please note, that Excludes must be used for settings Folder, otherwise it will be deleted on every run, and copied new.
+
+  ```json
+  "SourcePaths":  [
+                      "./",
+                      "T:\\zz_bkp_setings_folder"
+                  ],
+  "TargetPaths":  [
+                      "T:\\myAppBackupFolder\\",
+                      "T:\\myAppBackupFolder\\settings\\"
+                  ],
+  "UseCoherentBackup":  true,
+   "Excludes":  [
+                     "*.log",
+                     "*RECYCLE.BIN",
+                     "SystemVolumeInformation",
+                     "RECYCLER",
+                     "Thumbs.db",
+                     "settings"
+                 ]
+
+  ```
+
+  if those parameters are not in the BackupSettings.json, the script will use the old Settings:
+
+  - SourcePaths: "./" (means the script folder)
+  - "UseCoherentBackup": true --> (default) means, that first sourse will be copied to first target, second source to second target and so on.
+  - "UseCoherentBackup": false --> means, that all sources will be copied to all targets.
+
 ### V1.3.2
 
-- 19.09.2022 - Bugfix script crash on target with whitespaces  
+- 19.09.2022 - Bugfix script crash on target with whitespaces
 
 ### V1.3.1
 
-- 18.09.2022 - Bugfix on no internet connection  
+- 18.09.2022 - Bugfix on no internet connection
 
 ### V1.3.0
 
-- 17.09.2022 - Add aditional transscript to togfile and download actual version from GitHub 
+- 17.09.2022 - Add aditional transscript to togfile and download actual version from GitHub
 
 ### V1.2.0
 
-- 13.09.2022 - Add aditional BackupSettings.json 
+- 13.09.2022 - Add aditional BackupSettings.json
 
 ### V1.1.1
 
@@ -133,7 +192,6 @@ all variables, not included in the BackupSettings.json will be set to the defaul
 ### V1.0.0
 
 - 03.08.2021 - initial release
-
 
 <br>
 <br>
@@ -167,6 +225,6 @@ Become a patron, by simply clicking on this button (**very appreciated!**):
 
 ## Copyright
 
-`2021-2022 (c)Vitaly Ruhl`
+`2021-2023 (c)Vitaly Ruhl`
 
 License: GNU General Public License v3.0

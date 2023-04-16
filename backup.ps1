@@ -222,7 +222,7 @@ $global:Modul = 'Variable Settings'
 #Region predefined Variable --> comes from BackupSettings.json, if included in the same folder
 
 $TargetPaths = @(# An Array of Targets - Save all in more then 1 Backup
-    'Y:\zz_bkp_Test\'
+    'T:\myAppBackupFolder\'
 )
     
 $Excludes = @(# Working with LIKE operator -> can contains *,% etc...

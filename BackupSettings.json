@@ -1,15 +1,15 @@
 {
     "SourcePaths":  [
         "./",
-        "C:\\Daten\\_Codding\\Powerschell\\__Open_Github_Projects\\FindDuplicateFiles"
+        "T:\\zz_bkp_setings_folder"
     ],
     "UseCoherentBackup":  true,
     "TargetPaths":  [
-                        "T:\\zz_bkp_Test2\\",
-                        "T:\\zz_bkp_Test2\\settings\\"
+        "T:\\myAppBackupFolder\\",
+        "T:\\myAppBackupFolder\\settings\\"
                     ],
     "global:debugTransScript":  false,
-    "global:debug":  true,
+    "global:debug":  false,
     "UpdateVersion":  132,
     "AdminRightsRequired":  false,
     "AllowUpdate":  1,
