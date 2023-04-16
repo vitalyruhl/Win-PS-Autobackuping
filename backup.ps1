@@ -275,12 +275,12 @@ function performSelfUpdate() {
         }
            
     }
-    else {
-        log "Update from Path"
-        if ((Test-Path('"' + $UpdateFromPath + "\" + $UpdateFile + '"')) -And (Test-Path('"' + $UpdateFromPath + "\" + $UpdateVersionFile + '"'))) {
-            $VersionJson = (Get-Content "`"$UpdateFromPath\$UpdateVersionFile`"" -Raw) | ConvertFrom-Json
-        }
-    }
+    # else {
+    #     log "Update from Path"
+    #     if ((Test-Path('"' + $UpdateFromPath + "\" + $UpdateFile + '"')) -And (Test-Path('"' + $UpdateFromPath + "\" + $UpdateVersionFile + '"'))) {
+    #         $VersionJson = (Get-Content "`"$UpdateFromPath\$UpdateVersionFile`"" -Raw) | ConvertFrom-Json
+    #     }
+    # }
 
     $NewestVersion = $VersionJson.psobject.properties.Where({ $_.name -eq "CurrentVersion" }).value
     log "NewestVersion: $NewestVersion, UpdateVersion:  $NewestVersion"

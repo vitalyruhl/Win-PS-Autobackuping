@@ -1,16 +1,16 @@
 {
     "SourcePaths":  [
-        "./",
-        "T:\\zz_bkp_setings_folder"
-    ],
+                        "./",
+                        "T:\\zz_bkp_setings_folder"
+                    ],
     "UseCoherentBackup":  true,
     "TargetPaths":  [
-        "T:\\myAppBackupFolder\\",
-        "T:\\myAppBackupFolder\\settings\\"
+                        "T:\\myAppBackupFolder\\",
+                        "T:\\myAppBackupFolder\\settings\\"
                     ],
     "global:debugTransScript":  false,
     "global:debug":  false,
-    "UpdateVersion":  132,
+    "UpdateVersion":  140,
     "AdminRightsRequired":  false,
     "AllowUpdate":  1,
     "UpdateFromPath":  "https://raw.githubusercontent.com/vitalyruhl/Win-PS-Autobackuping/master",
@@ -21,7 +21,6 @@
     "CompressIntoTargetPaths":  false,
     "UseRobocopy":  true,
     "Parameter":  "/J /MIR /R:2 /W:1 /NP /COMPRESS",
-    
     "Excludes":  [
                      "*.log",
                      "*RECYCLE.BIN",
