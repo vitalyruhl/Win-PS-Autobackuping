@@ -2,6 +2,9 @@
 <#______________________________________________________________________________________________________________________
 
 	(c) Vitaly Ruhl 2021-2022
+    Homepage: Vitaly-Ruhl.de
+    Github:https://github.com/vitalyruhl/Win-PS-Autobackuping
+    License: GNU General Public License v3.0
 ______________________________________________________________________________________________________________________#>
 
 $Funktion = 'backup.ps1'
@@ -18,6 +21,7 @@ $Version = 120 #	13.09.2022		Vitaly Ruhl		Add aditional BackupSettings.json
 $Version = 130 #	17.09.2022		Vitaly Ruhl		Add aditional Transscript to Logfile and download actual Version from Github 
 $Version = 131 #	17.09.2022		Vitaly Ruhl		Bugfix on no Internet Connection 
 $Version = 132 #	19.09.2022		Vitaly Ruhl		Bugfix script crash on target with whitespaces  
+$Version = 140 #	16.04.2023		Vitaly Ruhl		Add multiple source and target support  
 
 
 <#______________________________________________________________________________________________________________________
@@ -240,6 +244,12 @@ $ProjectName = (get-item $ScriptInPath ).Name #only the Name of the Path
 $SettingsFile = "$ScriptInPath\BackupSettings.json"
 $currentDateTime = Get-Date -Format yyyy.MM.dd_HHmm
 
+#16.04.2023 - new Variable 
+$SourcePaths = @(# An Array of Sources - Backup all in more then 1 Source
+    './'#current Path
+)
+$UseCoherentBackup = $false #if false, all SourcePaths will be backuped in one TargetPath
+                            # Note - only for UseRobocopy and TargetPath Must be diffrent!
 
 #endregion
 
@@ -314,12 +324,19 @@ $global:Modul = 'ENV'
 #Check for BackupSettings.json and if it there fill the Variables
 if (Test-Path($SettingsFile)) {
     $json = (Get-Content $SettingsFile -Raw) | ConvertFrom-Json
+    #$json = ConvertFrom-Json (Get-Content $SettingsFile -Raw) -AsArray
     foreach ($var in $json.psobject.properties) {
+        $valueInfo = $json.psobject.properties.Where({ $_.name -eq $var.name })
         $value = $json.psobject.properties.Where({ $_.name -eq $var.name }).value
-        if ($var.name -is [bool]) {
-            #now bugfix on bools
+        if ($valueInfo.TypeNameOfValue -eq "System.Boolean") {
+            #16.04.2023 bugfix on bools
             #convert to bool
             $value = [bool]$value
+        }
+        if ($valueInfo.TypeNameOfValue -eq "System.Object[]") {
+            #16.04.2023 bugfix on arrays with one element
+            #convert to bool
+            $value = @($value)
         }
         Set-Variable -Name $var.name -Value $value
         $logText = "Set-Variable " + $var.name + "-->[$value]"
@@ -388,16 +405,54 @@ if ($TargetPaths -eq 0) {
 # 2022.09.14 viru Bugfix if there a : or \ taget path dosent accept this charakter
 $ProjectName = $ProjectName -replace "[^a-zA-Z0-9_\-\.]", "" #clean $ProjectName from characters that are not allowed in a path
 
+if ($SourcePaths[0] -eq './'){
+    $SourcePaths[0] = $ScriptInPath
+}
      
 if ($UseRobocopy) {
     sectionY "use Robocopy..."
     Write-Host "Exclude This:[$ExcludePath]"
-    foreach ( $TargetPath in $TargetPaths ) {
-        $TP = $TargetPath + "\" + $Prefix + $ProjectName + $Sufix + "\"
-        $act = "robocopy `"$ScriptInPath`" `"$TP`" $Parameter $ExcludePath"
-        log $act
-        Invoke-Expression $act
-    }    
+
+    if ($UseCoherentBackup){
+        debug "Use CoherentBackup"
+
+        if ($TargetPaths.Length -eq $SourcePaths.Length) {
+            log "TargetPaths and SourcePaths are of same length"
+
+
+            foreach ($i in 0..($SourcePaths.Length - 1)) {
+                #log "[$($i+1)] in SourcePaths is $($SourcePaths[$i]) to Target:  is $($TargetPaths[$i])"
+                $TP = $($TargetPaths[$i]) + "\" 
+                $act = "robocopy `"$($SourcePaths[$i])`" `"$TP`" $Parameter $ExcludePath"
+                log $act
+                Invoke-Expression $act
+    
+            
+            }
+  
+        }
+        else {
+            log "TargetPaths and SourcePaths are not of same length"
+            Write-Error "------------------------------------------------------`r`n"
+            Write-Error "When using Coherent Backup, you must have the same number of source and target paths!`r`n"
+            Write-Error "Sources: $SourcePaths"
+            Write-Error "Targets: $TargetPaths"
+            Write-Error "------------------------------------------------------`r`n"
+        }
+
+        
+    }
+    else {
+        debug "No Use CoherentBackup"
+        foreach ( $TargetPath in $TargetPaths ) {
+            foreach ( $SourcePath in $SourcePaths ) {
+                $TP = $TargetPath + "\" + $Prefix + $ProjectName + $Sufix + "\"
+                $act = "robocopy `"$SourcePath`" `"$TP`" $Parameter $ExcludePath"
+                log $act
+                Invoke-Expression $act
+            }
+        }    
+    }
 }
 else {
     sectionY "use Powershell"

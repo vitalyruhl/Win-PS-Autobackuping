@@ -1,6 +1,15 @@
 {
+    "SourcePaths":  [
+        "./",
+        "C:\\Daten\\_Codding\\Powerschell\\__Open_Github_Projects\\FindDuplicateFiles"
+    ],
+    "UseCoherentBackup":  true,
+    "TargetPaths":  [
+                        "T:\\zz_bkp_Test2\\",
+                        "T:\\zz_bkp_Test2\\settings\\"
+                    ],
     "global:debugTransScript":  false,
-    "global:debug":  false,
+    "global:debug":  true,
     "UpdateVersion":  132,
     "AdminRightsRequired":  false,
     "AllowUpdate":  1,
@@ -12,14 +21,13 @@
     "CompressIntoTargetPaths":  false,
     "UseRobocopy":  true,
     "Parameter":  "/J /MIR /R:2 /W:1 /NP /COMPRESS",
-    "TargetPaths":  [
-                        "T:\\zz_bkp_Test1\\"
-                    ],
+    
     "Excludes":  [
-                     "*xvba_debug.log",
+                     "*.log",
                      "*RECYCLE.BIN",
                      "SystemVolumeInformation",
                      "RECYCLER",
-                     "Thumbs.db"
+                     "Thumbs.db",
+                     "settings"
                  ]
 }
