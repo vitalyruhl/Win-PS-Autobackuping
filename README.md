@@ -122,6 +122,10 @@ all variables, not included in the BackupSettings.json will be set to the defaul
 
 ## What's new
 
+### V1.4.1
+
+- 07.08.2023 - Bugfix: Excludes (Files) don't work
+
 ### V1.4.0
 
 - 16.04.2023 - Add multiple source and target support

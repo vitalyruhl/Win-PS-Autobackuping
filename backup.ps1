@@ -22,6 +22,7 @@ $Version = 130 #	17.09.2022		Vitaly Ruhl		Add aditional Transscript to Logfile a
 $Version = 131 #	17.09.2022		Vitaly Ruhl		Bugfix on no Internet Connection 
 $Version = 132 #	19.09.2022		Vitaly Ruhl		Bugfix script crash on target with whitespaces  
 $Version = 140 #	16.04.2023		Vitaly Ruhl		Add multiple source and target support  
+$Version = 141 #	07.08.2023		Vitaly Ruhl		Bugfix exclude files to  
 
 
 <#______________________________________________________________________________________________________________________
@@ -392,7 +393,11 @@ if ($AllowUpdate) { performSelfUpdate } #only if the Settings-File is there and 
 $global:Modul = 'Main'
 
 # 13.09.2022 Robocopy Region
-$ExcludePath = "/XD "
+$ExcludePath = "/XD " #Folders
+$Excludes | ForEach-Object {
+    $ExcludePath += '"' + $_ + '" '
+}
+$ExcludePath += " /XF " #Files 2023.08.07 Bugfix
 $Excludes | ForEach-Object {
     $ExcludePath += '"' + $_ + '" '
 }
