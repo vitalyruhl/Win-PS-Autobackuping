@@ -10,7 +10,7 @@
                     ],
     "global:debugTransScript":  false,
     "global:debug":  false,
-    "UpdateVersion":  140,
+    "UpdateVersion":  142,
     "AdminRightsRequired":  false,
     "AllowUpdate":  1,
     "UpdateFromPath":  "https://raw.githubusercontent.com/vitalyruhl/Win-PS-Autobackuping/master",
@@ -22,11 +22,15 @@
     "UseRobocopy":  true,
     "Parameter":  "/J /MIR /R:2 /W:1 /NP /COMPRESS",
     "Excludes":  [
-                     "*.log",
-                     "*RECYCLE.BIN",
-                     "SystemVolumeInformation",
-                     "RECYCLER",
-                     "Thumbs.db",
-                     "settings"
-                 ]
+        ".git",
+        "node_modules",
+        "*RECYCLE.BIN",
+        "SystemVolumeInformation",
+        "RECYCLER"
+    ],
+    "FileExcludes":  [
+            "*xvba_debug.log",
+            "*RECYCLE.BIN",
+            "Thumbs.db"
+        ]
 }

@@ -23,6 +23,7 @@ $Version = 131 #	17.09.2022		Vitaly Ruhl		Bugfix on no Internet Connection
 $Version = 132 #	19.09.2022		Vitaly Ruhl		Bugfix script crash on target with whitespaces  
 $Version = 140 #	16.04.2023		Vitaly Ruhl		Add multiple source and target support  
 $Version = 141 #	07.08.2023		Vitaly Ruhl		Bugfix exclude files to  
+$Version = 142 #	12.08.2023		Vitaly Ruhl		Own Parameterset for File-Exclusion 
 
 
 <#______________________________________________________________________________________________________________________
@@ -52,7 +53,7 @@ $Sufix = '' #"_Bakup_$AD"  #Sufix of Backup-Folder
 # 13.09.2022 Robocopy Region
 [bool]$UseRobocopy = $true 
 $Parameter = "/J /MIR /R:2 /W:1 /NP" 
-$ExcludePath = '' # '/XD D:\`$RECYCLE.BIN "System Volume Information" "RECYCLER"' #/XD exclude-fold* | /XF "C:\source\folder\path\to\folder\filename.extension"
+$excludeParameter = '' # '/XD D:\`$RECYCLE.BIN "System Volume Information" "RECYCLER"' #/XD exclude-fold* | /XF "C:\source\folder\path\to\folder\filename.extension"
 # end Robocopy Region
 
 
@@ -227,12 +228,15 @@ $TargetPaths = @(# An Array of Targets - Save all in more then 1 Backup
 )
     
 $Excludes = @(# Working with LIKE operator -> can contains *,% etc...
-    "*xvba_debug.log", # !!!!!#xvba_debug.log must be exclude from Backup. Otherwise crashes on own debug-files
     '*`$RECYCLE.BIN',
     "System Volume Information", 
-    "RECYCLER",
-    "Thumbs.db",
-    "test-load-settings"
+    "RECYCLER"
+)
+
+$FileExcludes = @(# Working with LIKE operator -> can contains *,% etc...
+    "*xvba_debug.log", # !!!!!#xvba_debug.log must be exclude from Backup. Otherwise crashes on own debug-files
+    '*`$RECYCLE.BIN',
+    "Thumbs.db"
 )
 
 $UpdateVersion = 0
@@ -386,21 +390,25 @@ SetDebugState($false)
 
 log "`r`n`r`n"
 log "AllowUpdate: $AllowUpdate"
-$Excludes | ForEach-Object { log "Excludes: $_" }
 
 if ($AllowUpdate) { performSelfUpdate } #only if the Settings-File is there and Update is allowed
 
 $global:Modul = 'Main'
 
 # 13.09.2022 Robocopy Region
-$ExcludePath = "/XD " #Folders
+$excludeParameter = "/XD " #Folders
 $Excludes | ForEach-Object {
-    $ExcludePath += '"' + $_ + '" '
+    $excludeParameter += '"' + $_ + '" '
 }
-$ExcludePath += " /XF " #Files 2023.08.07 Bugfix
-$Excludes | ForEach-Object {
-    $ExcludePath += '"' + $_ + '" '
+
+$excludeParameter += " /XF " #Files 2023.08.07 Bugfix
+
+$FileExcludes | ForEach-Object {
+    $excludeParameter += '"' + $_ + '" '
 }
+
+$Excludes | ForEach-Object { log "Excludes: $_" }
+
 # end Robocopy Region
 
 if ($TargetPaths -eq 0) {
@@ -416,7 +424,7 @@ if ($SourcePaths[0] -eq './'){
      
 if ($UseRobocopy) {
     sectionY "use Robocopy..."
-    Write-Host "Exclude This:[$ExcludePath]"
+    Write-Host "Exclude This:[$excludeParameter]"
 
     if ($UseCoherentBackup){
         debug "Use CoherentBackup"
@@ -424,15 +432,13 @@ if ($UseRobocopy) {
         if ($TargetPaths.Length -eq $SourcePaths.Length) {
             log "TargetPaths and SourcePaths are of same length"
 
-
             foreach ($i in 0..($SourcePaths.Length - 1)) {
                 #log "[$($i+1)] in SourcePaths is $($SourcePaths[$i]) to Target:  is $($TargetPaths[$i])"
                 $TP = $($TargetPaths[$i]) + "\" 
-                $act = "robocopy `"$($SourcePaths[$i])`" `"$TP`" $Parameter $ExcludePath"
+                $act = "robocopy `"$($SourcePaths[$i])`" `"$TP`" $Parameter $excludeParameter"
                 log $act
                 Invoke-Expression $act
     
-            
             }
   
         }
@@ -445,20 +451,20 @@ if ($UseRobocopy) {
             Write-Error "------------------------------------------------------`r`n"
         }
 
-        
     }
     else {
         debug "No Use CoherentBackup"
         foreach ( $TargetPath in $TargetPaths ) {
             foreach ( $SourcePath in $SourcePaths ) {
                 $TP = $TargetPath + "\" + $Prefix + $ProjectName + $Sufix + "\"
-                $act = "robocopy `"$SourcePath`" `"$TP`" $Parameter $ExcludePath"
+                $act = "robocopy `"$SourcePath`" `"$TP`" $Parameter $excludeParameter"
                 log $act
                 Invoke-Expression $act
             }
         }    
     }
 }
+
 else {
     sectionY "use Powershell"
     sectionY "collecting, please wait..."
