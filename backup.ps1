@@ -194,6 +194,7 @@ function Get-ScriptDirectory() {
 if ($AdminRightsRequired) {
     log "get Adminrights... $AdminRightsRequired"
     #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    ##https://www.heise.de/ct/hotline/PowerShell-Skript-mit-Admin-Rechten-1045393.html
     $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
     $princ = New-Object System.Security.Principal.WindowsPrincipal($identity)
     if (!$princ.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)) {
