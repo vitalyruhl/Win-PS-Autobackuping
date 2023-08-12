@@ -3,7 +3,6 @@
                         "./",
                         "T:\\zz_bkp_setings_folder"
                     ],
-    "UseCoherentBackup":  true,
     "TargetPaths":  [
                         "T:\\myAppBackupFolder\\",
                         "T:\\myAppBackupFolder\\settings\\"
