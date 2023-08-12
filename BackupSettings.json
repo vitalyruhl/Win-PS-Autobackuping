@@ -8,6 +8,7 @@
                         "T:\\myAppBackupFolder\\",
                         "T:\\myAppBackupFolder\\settings\\"
                     ],
+    "makeNewFolderIfNotExist": true,
     "global:debugTransScript":  false,
     "global:debug":  false,
     "UpdateVersion":  142,

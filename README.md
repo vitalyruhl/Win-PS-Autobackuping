@@ -66,7 +66,7 @@ If you have BackupSettings.json in the same folder as the Script, it will use th
                         "./",
                         "T:\\zz_bkp_setings_folder"
                     ],
-    "UseCoherentBackup":  true,
+    "makeNewFolderIfNotExist":  true,
     "TargetPaths":  [
                         "T:\\myAppBackupFolder\\",
                         "T:\\myAppBackupFolder\\settings\\"
@@ -128,6 +128,18 @@ all variables, not included in the BackupSettings.json will be set to the defaul
 
 ## What's new
 
+### V1.5.0
+
+- 12.08.2023 - Bugfix: Rename UseCoherentBackup Parameter - its confuse and make some deleteon on target.
+
+  ```json
+    "makeNewFolderIfNotExist":  true,
+  ```
+  
+- "makeNewFolderIfNotExist": true --> (default) means, that first sourse will be copied to first target,second source to second target and so on. And a new folder with the last source folder will be created on the Target Path.
+
+- "makeNewFolderIfNotExist": false --> means, that all sources will be copied to all targets. **AND in this Option, all files in the target will be deleted, if they are not in the source. Be careful with this option and make tests!!!.**
+
 ### V1.4.2
 
 - 12.08.2023 - Bugfix: Excludes (Files) - Add a new Parameter FileExcludes to prevent double excludes /XD + /XF
@@ -159,14 +171,16 @@ all variables, not included in the BackupSettings.json will be set to the defaul
                       "T:\\zz_bkp_Test1\\",
                       "T:\\zz_bkp_Test2\\"
                   ],
-  "UseCoherentBackup":  true,
+  "makeNewFolderIfNotExist":  false,
 
   ```
+
+  **Note in this case, all files in the target will be deleted, if they are not in the source. Be careful with this option and make tests!!!.**  
 
   Example-2:
 
   - If you want to backup the script folder and a folder with settings, you can use the following example:
-    - please note, that Excludes must be used for settings Folder, otherwise it will be deleted on every run, and copied new.
+  - please note, that Excludes must be used for settings Folder, otherwise it will be deleted on every run, and copied new.
 
   ```json
   "SourcePaths":  [
@@ -177,24 +191,14 @@ all variables, not included in the BackupSettings.json will be set to the defaul
                       "T:\\myAppBackupFolder\\",
                       "T:\\myAppBackupFolder\\settings\\"
                   ],
-  "UseCoherentBackup":  true,
-   "Excludes":  [
-                     "*.log",
-                     "*RECYCLE.BIN",
-                     "SystemVolumeInformation",
-                     "RECYCLER",
-                     "Thumbs.db",
-                     "settings"
-                 ]
+  "makeNewFolderIfNotExist":  true,
 
   ```
 
   if those parameters are not in the BackupSettings.json, the script will use the old Settings:
 
   - SourcePaths: "./" (means the script folder)
-  - "UseCoherentBackup": true --> (default) means, that first sourse will be copied to first target, second source to second target and so on.
-  - "UseCoherentBackup": false --> means, that all sources will be copied to all targets.
-
+ 
 ### V1.3.2
 
 - 19.09.2022 - Bugfix script crash on target with whitespaces

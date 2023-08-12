@@ -24,6 +24,7 @@ $Version = 132 #	19.09.2022		Vitaly Ruhl		Bugfix script crash on target with whi
 $Version = 140 #	16.04.2023		Vitaly Ruhl		Add multiple source and target support  
 $Version = 141 #	07.08.2023		Vitaly Ruhl		Bugfix exclude files to  
 $Version = 142 #	12.08.2023		Vitaly Ruhl		Own Parameterset for File-Exclusion 
+$Version = 150 #	12.08.2023		Vitaly Ruhl		Rename UseCoherentBackup Parameter - its confuse and make some deleteon on target 
 
 
 <#______________________________________________________________________________________________________________________
@@ -254,8 +255,13 @@ $currentDateTime = Get-Date -Format yyyy.MM.dd_HHmm
 $SourcePaths = @(# An Array of Sources - Backup all in more then 1 Source
     './'#current Path
 )
-$UseCoherentBackup = $false #if false, all SourcePaths will be backuped in one TargetPath
-                            # Note - only for UseRobocopy and TargetPath Must be diffrent!
+
+
+# BUG: 12.08.2023 - Rename UseCoherentBackup Parameter - its confuse and make some deleteon on target
+# $UseCoherentBackup = $false #if false, all SourcePaths will be backuped in one TargetPath
+#                            # Note - only for UseRobocopy and TargetPath Must be diffrent!
+$makeNewFolderIfNotExist = $true #if false, all SourcePaths will be backuped TargetPath + Foldername of SourcePath
+                            # Note - if False, all files will be deleted in target, that not contained in source!
 
 #endregion
 
@@ -427,9 +433,9 @@ if ($UseRobocopy) {
     sectionY "use Robocopy..."
     Write-Host "Exclude This:[$excludeParameter]"
 
-    if ($UseCoherentBackup){
+    if (!$makeNewFolderIfNotExist){
         debug "Use CoherentBackup"
-
+        # This willdeleta all other files not contailned in source!!!
         if ($TargetPaths.Length -eq $SourcePaths.Length) {
             log "TargetPaths and SourcePaths are of same length"
 
@@ -454,7 +460,7 @@ if ($UseRobocopy) {
 
     }
     else {
-        debug "No Use CoherentBackup"
+        debug "No Use CoherentBackup" # make a new folder if not exist and copy data there!
         foreach ( $TargetPath in $TargetPaths ) {
             foreach ( $SourcePath in $SourcePaths ) {
                 $TP = $TargetPath + "\" + $Prefix + $ProjectName + $Sufix + "\"
