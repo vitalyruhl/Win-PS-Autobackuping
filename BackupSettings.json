@@ -7,10 +7,10 @@
                         "T:\\myAppBackupFolder\\",
                         "T:\\myAppBackupFolder\\settings\\"
                     ],
-    "makeNewFolderIfNotExist": true,
+    "makeNewFolderIfNotExist":  true,
     "global:debugTransScript":  false,
     "global:debug":  false,
-    "UpdateVersion":  142,
+    "UpdateVersion":  150,
     "AdminRightsRequired":  false,
     "AllowUpdate":  1,
     "UpdateFromPath":  "https://raw.githubusercontent.com/vitalyruhl/Win-PS-Autobackuping/master",
@@ -22,15 +22,15 @@
     "UseRobocopy":  true,
     "Parameter":  "/J /MIR /R:2 /W:1 /NP /COMPRESS",
     "Excludes":  [
-        ".git",
-        "node_modules",
-        "*RECYCLE.BIN",
-        "SystemVolumeInformation",
-        "RECYCLER"
-    ],
+                     ".git",
+                     "node_modules",
+                     "*RECYCLE.BIN",
+                     "SystemVolumeInformation",
+                     "RECYCLER"
+                 ],
     "FileExcludes":  [
-            "*xvba_debug.log",
-            "*RECYCLE.BIN",
-            "Thumbs.db"
-        ]
+                         "*xvba_debug.log",
+                         "*RECYCLE.BIN",
+                         "Thumbs.db"
+                     ]
 }
